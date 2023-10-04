@@ -9,7 +9,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
-@CrossOrigin("http://localhost:5173")
+@CrossOrigin("*")
 @RequiredArgsConstructor
 @RequestMapping("/api/v1/desk")
 public class DeskController {
@@ -17,7 +17,7 @@ public class DeskController {
     private final DeskService deskService;
 
     @PostMapping("add")
-    @ResponseStatus(HttpStatus.OK)
+    @ResponseStatus(HttpStatus.CREATED)
     public ResponseObject addDesk(@RequestBody DeskDto deskDto) throws AddException {
        return deskService.addDesk(deskDto);
     }
@@ -31,4 +31,11 @@ public class DeskController {
         // check giá trị tại đây => không hợp lệ quăng ra lỗi
         return deskService.getAll(isPublic, sortBy);
     }
+
+    @GetMapping("detail/{id}")
+    @ResponseStatus(HttpStatus.OK)
+    public ResponseObject getDeskWithId(@PathVariable Integer id) throws Exception {
+        return deskService.getDeskWithId(id);
+    }
+
 }

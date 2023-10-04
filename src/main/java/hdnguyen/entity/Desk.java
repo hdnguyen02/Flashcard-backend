@@ -25,7 +25,7 @@ public class Desk {
     private String description;
 
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name="email_user")
     private User user;
 
@@ -43,4 +43,3 @@ public class Desk {
 }
 
 // gửi lên bao gồm: hình ảnh, audio.
-    

@@ -1,13 +1,9 @@
 package hdnguyen.dto;
 
 import hdnguyen.dto.auth.LabelDto;
-import hdnguyen.entity.Label;
-import jakarta.persistence.Column;
 import lombok.*;
-
 import java.util.Date;
 import java.util.List;
-import java.util.Set;
 
 @Getter
 @Setter

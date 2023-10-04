@@ -9,6 +9,7 @@ import hdnguyen.entity.Desk;
 import hdnguyen.entity.Label;
 import hdnguyen.entity.User;
 import hdnguyen.exception.AddException;
+import hdnguyen.exception.ForbiddenException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -61,10 +62,6 @@ public class DeskService {
     }
 
     public ResponseObject getAll(Boolean isPublic, String sortBy) {
-
-
-
-
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         User user = (User)authentication.getPrincipal();
         List<Desk> desks = user.getDesks();
@@ -92,4 +89,37 @@ public class DeskService {
                 .build();
     }
 
+    public ResponseObject getDeskWithId(Integer id) throws Exception {
+
+        Optional<Desk> optionalDesk = deskDao.findById(id);
+        if (optionalDesk.isEmpty()) throw new Exception("Không tồn tại bộ thẻ này");
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        User user = (User)authentication.getPrincipal();
+        Desk desk = optionalDesk.get();
+        if (!desk.getUser().getEmail().equals(user.getEmail())) throw new ForbiddenException("Không được phép");
+
+        List<Label> labels = desk.getLabels();
+        List<LabelDto> labelDtos = new ArrayList<>();
+        labels.forEach(label -> {
+            labelDtos.add(LabelDto.builder()
+                    .name(label.getName())
+                    .id(label.getId())
+                    .build());
+         });
+
+        DeskResponse deskResponse = DeskResponse.builder()
+                .id(desk.getId())
+                .name(desk.getName())
+                .description(desk.getDescription())
+                .isPublic(desk.getIsPublic())
+                .labels(labelDtos)
+                .createAt(desk.getCreateAt())
+                .build();
+
+        return ResponseObject.builder()
+                    .status("success")
+                    .data(deskResponse)
+                    .message("Truy vấn thành công")
+                    .build();
+    }
 }

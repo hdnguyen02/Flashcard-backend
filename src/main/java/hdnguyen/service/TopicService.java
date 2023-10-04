@@ -4,15 +4,12 @@ import hdnguyen.dao.TopicDao;
 import hdnguyen.dto.ResponseObject;
 import hdnguyen.dto.TopicDto;
 import hdnguyen.dto.auth.LabelDto;
-import hdnguyen.entity.Label;
 import hdnguyen.entity.Topic;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 
 
 @RequiredArgsConstructor

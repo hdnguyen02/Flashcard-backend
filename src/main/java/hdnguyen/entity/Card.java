@@ -6,16 +6,15 @@ import lombok.*;
 
 import java.util.Date;
 
-@Entity
+@Entity(name = "cards")
 @Getter
 @Setter
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-@Table(name = "cards")
 public class Card {
     @Id
-    @GeneratedValue
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
     private String term;
     private String definition;
@@ -26,7 +25,7 @@ public class Card {
     @Column(name = "create_at")
     private Date createAt;
 
-    @ManyToMany(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "id_desk")
     private Desk desk;
 }

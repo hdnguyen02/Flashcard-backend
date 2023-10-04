@@ -27,14 +27,13 @@ public class ConfigSecurity {
         http
                 .csrf(AbstractHttpConfigurer::disable)
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/api/v1/auth/**", "api/v1/topic/**").permitAll()
+                       .requestMatchers("/api/v1/auth/**", "/api/v1/topic/**", "/card/**").permitAll()
                         .anyRequest().authenticated()
                 )
                 .logout(logout -> logout.logoutUrl("/api/v1/logout"))
                 .sessionManagement(ssm -> ssm.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authenticationProvider(authenticationProvider)
                 .addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class);
-
         return http.build();
 
 

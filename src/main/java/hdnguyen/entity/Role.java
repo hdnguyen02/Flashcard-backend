@@ -9,12 +9,11 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-@Entity
+@Entity(name = "roles")
 @Data
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-@Table(name = "roles")
 public class Role {
     @Id
     private String name;

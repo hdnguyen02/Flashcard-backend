@@ -1,16 +1,9 @@
 package hdnguyen.entity;
 
 
-import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
-import jakarta.validation.constraints.Pattern;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
-import org.springframework.boot.context.properties.bind.DefaultValue;
-import org.springframework.format.annotation.DateTimeFormat;
+import lombok.*;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -19,12 +12,12 @@ import java.time.LocalDateTime;
 import java.util.*;
 
 
-@Entity
-@Data
+@Entity(name = "users")
+@Getter
+@Setter
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-@Table(name = "users")
 public class User implements UserDetails {
     @Id
     private String email;
