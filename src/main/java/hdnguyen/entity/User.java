@@ -39,6 +39,10 @@ public class User implements UserDetails {
     @JsonIgnore
     private List<Desk> desks;
 
+    @OneToMany(mappedBy = "user", fetch = FetchType.EAGER)
+    @JsonIgnore
+    private List<Tag> tags;
+
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
         Collection<SimpleGrantedAuthority> authorities = new HashSet<>();

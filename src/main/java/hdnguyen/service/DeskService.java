@@ -1,18 +1,15 @@
 package hdnguyen.service;
 
+import hdnguyen.common.Helper;
 import hdnguyen.dao.DeskDao;
+import hdnguyen.requestbody.DeskRequestBody;
 import hdnguyen.dto.DeskDto;
-import hdnguyen.dto.DeskResponse;
 import hdnguyen.dto.ResponseObject;
 import hdnguyen.dto.auth.LabelDto;
 import hdnguyen.entity.Desk;
 import hdnguyen.entity.Label;
 import hdnguyen.entity.User;
-import hdnguyen.exception.AddException;
-import hdnguyen.exception.ForbiddenException;
 import lombok.RequiredArgsConstructor;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
@@ -22,8 +19,9 @@ import java.util.*;
 public class DeskService {
 
     private final DeskDao deskDao;
+    private final Helper helper;
 
-    public ResponseObject addDesk(DeskDto deskDto) throws AddException {
+    public ResponseObject addDesk(DeskRequestBody deskDto) throws Exception {
         List<Label> labels = new ArrayList<>();
         deskDto.getIdLabels().forEach(idLabel -> {
             Label label = Label.builder()
@@ -32,8 +30,7 @@ public class DeskService {
             labels.add(label);
         });
 
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        User user = (User)authentication.getPrincipal();
+        User user = helper.getCurentUser();
         Desk addDesk = Desk.builder()
                 .name(deskDto.getName())
                 .description(deskDto.getDescription())
@@ -46,33 +43,33 @@ public class DeskService {
         user.getDesks().forEach(userDesk -> {
             userDeskName.add(userDesk.getName());
         });
-        if (userDeskName.contains(addDesk.getName())) throw new AddException("Tên desk đã tồn tại");
+        if (userDeskName.contains(addDesk.getName())) throw new Exception("Tên bộ thẻ đã tồn tại!");
         try {
             Desk deskAddSuccess = deskDao.save(addDesk);
             deskDto.setId(deskAddSuccess.getId());
         }
         catch (Exception e) {
-            throw new AddException(e.getMessage());
+            throw new Exception(e.getMessage());
         }
         return ResponseObject.builder()
                 .status("success")
                 .data(deskDto)
-                .message("Thêm thành công!")
+                .message("Thêm bộ thẻ thành công")
                 .build();
     }
 
     public ResponseObject getAll(Boolean isPublic, String sortBy) {
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        User user = (User)authentication.getPrincipal();
+
+        User user = helper.getCurentUser();
         List<Desk> desks = user.getDesks();
-        List<DeskResponse> deskResponses = new ArrayList<>();
+        List<DeskDto> deskResponses = new ArrayList<>();
         desks.forEach(desk -> {
             List<LabelDto> labelDtos = new ArrayList<>();
             desk.getLabels().forEach(label -> {
                 labelDtos.add(new LabelDto(label.getId(), label.getName()));
             });
             deskResponses.add(
-                    DeskResponse.builder()
+                    DeskDto.builder()
                             .id(desk.getId())
                             .name(desk.getName())
                             .description(desk.getDescription())
@@ -84,7 +81,7 @@ public class DeskService {
         });
         return ResponseObject.builder()
                 .status("success")
-                .message("All desk")
+                .message("Truy vấn thành công")
                 .data(deskResponses)
                 .build();
     }
@@ -92,11 +89,10 @@ public class DeskService {
     public ResponseObject getDeskWithId(Integer id) throws Exception {
 
         Optional<Desk> optionalDesk = deskDao.findById(id);
-        if (optionalDesk.isEmpty()) throw new Exception("Không tồn tại bộ thẻ này");
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        User user = (User)authentication.getPrincipal();
+        if (optionalDesk.isEmpty()) throw new Exception("Không tìm thấy bộ thẻ!");
+        User user = helper.getCurentUser();
         Desk desk = optionalDesk.get();
-        if (!desk.getUser().getEmail().equals(user.getEmail())) throw new ForbiddenException("Không được phép");
+        if (!desk.getUser().getEmail().equals(user.getEmail())) throw new Exception("Unauthorized!");
 
         List<Label> labels = desk.getLabels();
         List<LabelDto> labelDtos = new ArrayList<>();
@@ -107,7 +103,7 @@ public class DeskService {
                     .build());
          });
 
-        DeskResponse deskResponse = DeskResponse.builder()
+        DeskDto deskResponse = DeskDto.builder()
                 .id(desk.getId())
                 .name(desk.getName())
                 .description(desk.getDescription())
@@ -118,8 +114,8 @@ public class DeskService {
 
         return ResponseObject.builder()
                     .status("success")
-                    .data(deskResponse)
                     .message("Truy vấn thành công")
+                    .data(deskResponse)
                     .build();
     }
 }

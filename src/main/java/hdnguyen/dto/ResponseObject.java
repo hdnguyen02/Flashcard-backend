@@ -12,7 +12,7 @@ import lombok.NoArgsConstructor;
 @Builder
 @Data
 public class ResponseObject {
-    private String status;  // success or failure
+    private String status;
     private String message;
     private Object data;
 }

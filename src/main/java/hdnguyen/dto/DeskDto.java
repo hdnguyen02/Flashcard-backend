@@ -1,7 +1,8 @@
 package hdnguyen.dto;
 
+import hdnguyen.dto.auth.LabelDto;
 import lombok.*;
-
+import java.util.Date;
 import java.util.List;
 
 @Getter
@@ -10,9 +11,10 @@ import java.util.List;
 @NoArgsConstructor
 @AllArgsConstructor
 public class DeskDto {
-    private Integer id; // có thể nhận lấy null.
-    private String name;
+    private Integer id;
     private String description;
     private Boolean isPublic;
-    private List<Integer> idLabels; // chứa dánh sách id label.
+    private String name;
+    private List<LabelDto> labels;
+    private Date createAt;
 }

@@ -9,12 +9,8 @@ import hdnguyen.dto.ResponseObject;
 import hdnguyen.entity.Card;
 import hdnguyen.entity.Desk;
 import hdnguyen.entity.User;
-import hdnguyen.exception.AddException;
-import hdnguyen.exception.ForbiddenException;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
@@ -29,15 +25,12 @@ public class CardService {
     private final DeskDao deskDao;
     private final Helper helper;
 
-
-    // thêm card vào
-    public ResponseObject addCard( String term,String definition,String image,String audio,String extractInfo, Integer idDeskAddCard) throws AddException, ForbiddenException {
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        User user = (User)authentication.getPrincipal();
+    public ResponseObject addCard( String term,String definition,String image,String audio,String extractInfo, Integer idDeskAddCard) throws Exception {
+        User user = helper.getCurentUser();
         Optional<Desk> deskAddCard = deskDao.findById(idDeskAddCard);
-        if (deskAddCard.isEmpty()) throw new AddException("Không tồn tại bộ thẻ này!");
+        if (deskAddCard.isEmpty()) throw new Exception("Không tồn tại bộ thẻ này!");
         if (!deskAddCard.get().getUser().getEmail().equals(user.getEmail())) {
-            throw new ForbiddenException("Không được phép!");
+            throw new Exception("Unauthorized!");
         }
         Card addCard = Card.builder()
                 .term(term).definition(definition)
@@ -49,7 +42,7 @@ public class CardService {
             cardDao.save(addCard);
         }
         catch (Exception e) {
-            throw new AddException(e.getMessage());
+            throw new Exception(e.getMessage());
         }
         return ResponseObject.builder()
                 .status("success")
@@ -60,25 +53,24 @@ public class CardService {
 
     public ResponseObject getCardWithIdDesk (Integer idDesk, HttpServletRequest request) throws Exception {
         String urlRoot = helper.getUrlRoot(request);
+        User user = helper.getCurentUser();
         Optional<Desk> optionalDesk = deskDao.findById(idDesk);
         if (optionalDesk.isEmpty()) throw new Exception("Desk not found!");
         Desk desk = optionalDesk.get();
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        User user = (User)authentication.getPrincipal();
         final String emailUser = user.getEmail();
-        if (!emailUser.equals(desk.getUser().getEmail())) throw new ForbiddenException("unauthorized!");
+        if (!emailUser.equals(desk.getUser().getEmail())) throw new Exception("Unauthorized!");
 
 
         List<Card> cards = desk.getCards();
         List<CardDto>  cardDtos = new ArrayList<>();
         cards.forEach(card -> {
             String urlImage = card.getImage();
-            if (urlImage != null){ // tồn tại image
+            if (urlImage != null){
                  urlImage = urlRoot + "/card/"+ TypeFile.image + "/" + urlImage;
             }
 
             String urlAudio = card.getAudio();
-            if (urlAudio != null){ // tồn tại image
+            if (urlAudio != null){
                 urlAudio = urlRoot + "/card/"+ TypeFile.audio + "/" + urlAudio;
             }
 
@@ -90,7 +82,6 @@ public class CardService {
                             .audio(urlAudio)
                     .build());
         });
-
 
         return ResponseObject.builder()
                 .status("success")

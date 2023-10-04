@@ -1,16 +1,23 @@
 package hdnguyen.common;
 
 
+import hdnguyen.entity.User;
 import jakarta.servlet.http.HttpServletRequest;
-import org.springframework.stereotype.Service;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.stereotype.Component;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
-@Service
+@Component
 public class Helper {
     public String getUrlRoot(HttpServletRequest request) {
         return ServletUriComponentsBuilder.fromRequestUri(request)
                 .replacePath(null)
                 .build()
                 .toString();
+    }
+    public User getCurentUser(){
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        return (User)authentication.getPrincipal();
     }
 }

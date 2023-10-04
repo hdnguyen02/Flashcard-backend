@@ -1,8 +1,6 @@
 package hdnguyen.advice;
 
 import hdnguyen.dto.ResponseObject;
-import hdnguyen.exception.AddException;
-import hdnguyen.exception.ForbiddenException;
 import hdnguyen.exception.RegisterException;
 import hdnguyen.exception.StorageException;
 import org.springframework.http.HttpStatus;
@@ -13,8 +11,6 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 @RestControllerAdvice
 @ResponseStatus(HttpStatus.BAD_REQUEST)
 public class AppExceptionHandler {
-
-
 
     @ExceptionHandler(Exception.class)
     @ResponseStatus(HttpStatus.BAD_REQUEST)
@@ -36,15 +32,7 @@ public class AppExceptionHandler {
                     .build();
     }
 
-    @ExceptionHandler(AddException.class)
-    @ResponseStatus(HttpStatus.BAD_REQUEST)
-    public ResponseObject handleAddException(AddException e) {
-        return ResponseObject.builder()
-                .message(e.getMessage())
-                .status("failure")
-                .data(null)
-                .build();
-    }
+
 
     @ExceptionHandler(IllegalArgumentException.class)
     @ResponseStatus(HttpStatus.BAD_REQUEST)
@@ -66,13 +54,4 @@ public class AppExceptionHandler {
                 .build();
     }
 
-    @ExceptionHandler(ForbiddenException.class)
-    @ResponseStatus(HttpStatus.FORBIDDEN)
-    public ResponseObject handleForbiddenException(ForbiddenException e) {
-        return ResponseObject.builder()
-                .message(e.getMessage())
-                .status("failure")
-                .data(null)
-                .build();
-    }
 }

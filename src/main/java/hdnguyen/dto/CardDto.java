@@ -16,6 +16,5 @@ public class CardDto {
     private String image;
     private String audio;
     private Date createAt;
-    // sau này có thể sẽ duy chuyển card này sang desk khác -> vì vậy cho thêm id Desk vào đây đi
     private Integer idDesk;
 }

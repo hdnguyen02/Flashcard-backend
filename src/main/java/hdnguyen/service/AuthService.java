@@ -33,7 +33,7 @@ public class AuthService {
         Optional<User> checkUser =  userDao.findById(register.getEmail());
         if (checkUser.isPresent()) {
             Map<String, String> listError = new HashMap<>();
-            listError.put("email", "email đã được sử dụng");
+            listError.put("email", "Email đã được sử dụng");
             throw new RegisterException("Đăng ký tài khoản thất bại!",listError);
         }
 
@@ -55,7 +55,7 @@ public class AuthService {
 
         return ResponseObject.builder()
                 .status("success")
-                .message("tạo tài khoản thành công")
+                .message("Tạo tài khoản thành công")
                 .data(authResponse)
                 .build();
     }

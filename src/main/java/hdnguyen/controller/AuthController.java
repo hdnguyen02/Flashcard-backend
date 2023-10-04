@@ -11,21 +11,21 @@ import org.springframework.web.bind.annotation.*;
 
 
 @RestController
-@CrossOrigin("http://localhost:5173")
+@CrossOrigin("*")
 @RequiredArgsConstructor
-@RequestMapping("/api/v1/auth")
+@RequestMapping("api/v1/auth")
 public class AuthController {
 
     private final UserDao userDao;
 
     private final AuthService authService;
 
-    @PostMapping("/register")
+    @PostMapping("register")
     public ResponseObject register (@RequestBody RegisterRequest registerRequest) throws Exception {
         return authService.register(registerRequest);
     }
 
-    @PostMapping("/login")
+    @PostMapping("login")
     public ResponseObject authenticate (@RequestBody AuthenticateRequest authenticateRequest) {
         return authService.authenticate(authenticateRequest);
     }

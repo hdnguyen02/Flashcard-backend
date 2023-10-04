@@ -5,6 +5,7 @@ import jakarta.persistence.*;
 import lombok.*;
 
 import java.util.Date;
+import java.util.List;
 
 @Entity(name = "cards")
 @Getter
@@ -28,4 +29,8 @@ public class Card {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "id_desk")
     private Desk desk;
+
+    @ManyToMany(fetch = FetchType.EAGER)
+    @JoinTable( name = "card_tag", joinColumns = @JoinColumn(name = "id_card"),inverseJoinColumns = @JoinColumn(name = "id_tag"))
+    private List<Tag> tags;
 }

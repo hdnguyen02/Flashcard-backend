@@ -9,14 +9,14 @@ import org.springframework.web.bind.annotation.*;
 
 
 @RestController
-@CrossOrigin("http://localhost:5173")
+@CrossOrigin("*")
 @RequiredArgsConstructor
-@RequestMapping("/api/v1/topic")
+@RequestMapping("api/v1/topic")
 public class TopicController {
 
     private final TopicService topicService;
 
-    @GetMapping("/all")
+    @GetMapping("all")
     @ResponseStatus(HttpStatus.OK)
     public ResponseObject getTopics(){
         return topicService.getTopics();

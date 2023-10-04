@@ -21,8 +21,6 @@ public class TopicService {
         List<Topic> topics = topicDao.findAll();
         List<TopicDto> topicDtos = new ArrayList<>();
         topics.forEach(topic -> {
-            // lấy ra toàn bộ lable
-
             List<LabelDto> labels = new ArrayList<>();
             topic.getLabels().forEach(label -> labels.add(new LabelDto(label.getId(),label.getName())));
             topicDtos.add(TopicDto.builder()
@@ -32,7 +30,7 @@ public class TopicService {
         });
         return ResponseObject.builder()
                 .status("success")
-                .message("all topic")
+                .message("Truy vấn thành công")
                 .data(topicDtos)
                 .build();
     }
