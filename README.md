@@ -1,4 +1,4 @@
-# Dự án về spring boot "rest api" 
+# spring boot "rest api" 
 ![image](https://github.com/hdnguyen02/quizlet-api/assets/83913057/d913a227-e398-4e4a-9426-b27e0d993332)
 ## cách chạy
 Ứng dụng này được đóng kèm theo Tomcat, không cần cài **Tomcat** hoặc **JBoss**. Bạn chạy nó bằng lệnh __java -jar__
