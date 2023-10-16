@@ -15,7 +15,7 @@ import java.util.Map;
 public class TagController {
     private final TagService tagService;
 
-    @PutMapping("add")
+    @PostMapping("add")
     @ResponseStatus(HttpStatus.CREATED)
     public ResponseObject addTag(@RequestBody Map<String, String> requestBody) throws Exception {
         String name = requestBody.get("name");

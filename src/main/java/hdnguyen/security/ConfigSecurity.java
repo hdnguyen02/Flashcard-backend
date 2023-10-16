@@ -1,6 +1,5 @@
 package hdnguyen.security;
 
-import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
@@ -27,10 +26,10 @@ public class ConfigSecurity {
         http
                 .csrf(AbstractHttpConfigurer::disable)
                 .authorizeHttpRequests(auth -> auth
-                       .requestMatchers("/api/v1/auth/**", "/api/v1/topic/**", "/card/**").permitAll()
+                       .requestMatchers("api/v1/auth/**", "api/v1/topic/**", "card/**", "v3/api-docs").permitAll()
                         .anyRequest().authenticated()
                 )
-                .logout(logout -> logout.logoutUrl("/api/v1/logout"))
+                .logout(logout -> logout.logoutUrl("api/v1/logout"))
                 .sessionManagement(ssm -> ssm.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authenticationProvider(authenticationProvider)
                 .addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class);

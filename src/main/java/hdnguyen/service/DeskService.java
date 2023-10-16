@@ -9,6 +9,7 @@ import hdnguyen.dto.auth.LabelDto;
 import hdnguyen.entity.Desk;
 import hdnguyen.entity.Label;
 import hdnguyen.entity.User;
+import hdnguyen.requestbody.DeskUpdateBody;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -86,14 +87,74 @@ public class DeskService {
                 .build();
     }
 
-    public ResponseObject getDeskWithId(Integer id) throws Exception {
+    public ResponseObject deleteDesk(int id) throws Exception {
+        Desk desk = this.getDeskWithOfUser(id);
+        try {
+            deskDao.delete(desk); // xóa desk.
+        }
+        catch (Exception e) {
+            throw new Exception(e.getMessage());
+        }
+        return ResponseObject.builder()
+                .message("delete thành công")
+                .status("success")
+                .data(null)
+                .build();
+    }
 
+
+    private Desk getDeskWithOfUser(int id) throws Exception{
         Optional<Desk> optionalDesk = deskDao.findById(id);
         if (optionalDesk.isEmpty()) throw new Exception("Không tìm thấy bộ thẻ!");
         User user = helper.getCurentUser();
         Desk desk = optionalDesk.get();
         if (!desk.getUser().getEmail().equals(user.getEmail())) throw new Exception("Unauthorized!");
+        return desk;
+    }
 
+    // update
+    public ResponseObject updateDesk(int id, DeskUpdateBody deskUpdateBody) throws Exception {
+        Desk desk = this.getDeskWithOfUser(id);
+        desk.setName(deskUpdateBody.getName());
+        desk.setDescription(deskUpdateBody.getDescription());
+        desk.setIsPublic(deskUpdateBody.getIsPublic());
+        List<Label> labels = new ArrayList<>();
+        deskUpdateBody.getIdLabels().forEach(idLabel -> {
+            labels.add(Label.builder().id(idLabel).build());
+        });
+        desk.setLabels(labels);
+        try {
+            Desk deskUpdate =  deskDao.save(desk);
+
+            List<Label> labelsUpdate= deskUpdate.getLabels();
+            List<LabelDto> labelsDto = new ArrayList<>();
+            labelsUpdate.forEach(labelUpdate -> {
+                labelsDto.add(LabelDto.builder().id(labelUpdate.getId()).name(labelUpdate.getName()).build());
+            });
+
+            DeskDto deskDto = DeskDto.builder()
+                    .id(deskUpdate.getId())
+                    .name(deskUpdate.getName())
+                    .isPublic(deskUpdate.getIsPublic())
+                    .description(deskUpdate.getDescription())
+                    .createAt(deskUpdate.getCreateAt())
+                    .labels(labelsDto)
+                    .build();
+
+            return ResponseObject.builder()
+                    .status("success")
+                    .message("update thành công")
+                    .data(deskDto)
+                    .build();
+        }
+        catch (Exception e) {
+            throw new Exception(e.getMessage());
+        }
+    }
+
+    public ResponseObject getDeskWithId(int id) throws Exception {
+
+        Desk desk = this.getDeskWithOfUser(id);
         List<Label> labels = desk.getLabels();
         List<LabelDto> labelDtos = new ArrayList<>();
         labels.forEach(label -> {

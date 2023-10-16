@@ -6,8 +6,10 @@ import hdnguyen.dao.CardDao;
 import hdnguyen.dao.DeskDao;
 import hdnguyen.dto.CardDto;
 import hdnguyen.dto.ResponseObject;
+import hdnguyen.dto.TagDto;
 import hdnguyen.entity.Card;
 import hdnguyen.entity.Desk;
+import hdnguyen.entity.Tag;
 import hdnguyen.entity.User;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
@@ -25,17 +27,27 @@ public class CardService {
     private final DeskDao deskDao;
     private final Helper helper;
 
-    public ResponseObject addCard( String term,String definition,String image,String audio,String extractInfo, Integer idDeskAddCard) throws Exception {
+    public ResponseObject addCard( String term,String definition,String image,String audio,String extractInfo, Integer idDeskAddCard, List<Integer> idTags) throws Exception {
         User user = helper.getCurentUser();
         Optional<Desk> deskAddCard = deskDao.findById(idDeskAddCard);
         if (deskAddCard.isEmpty()) throw new Exception("Không tồn tại bộ thẻ này!");
         if (!deskAddCard.get().getUser().getEmail().equals(user.getEmail())) {
             throw new Exception("Unauthorized!");
         }
+
+        List<Tag> tags = new ArrayList<>();
+        idTags.forEach(idTag -> {
+            tags.add(Tag.builder()
+                    .id(idTag)
+                    .build());
+        });
+
+
         Card addCard = Card.builder()
                 .term(term).definition(definition)
                 .image(image).audio(audio).extractInfo(extractInfo)
                 .desk(deskAddCard.get())
+                .tags(tags)
                 .createAt(new Date(System.currentTimeMillis()))
                 .build();
         try {
@@ -74,14 +86,28 @@ public class CardService {
                 urlAudio = urlRoot + "/card/"+ TypeFile.audio + "/" + urlAudio;
             }
 
+            List<TagDto> tagDtos = new ArrayList<>();
+            List<Tag> tags = card.getTags();
+            tags.forEach(tag -> {
+                tagDtos.add(TagDto.builder()
+                                .name(tag.getName())
+                                .id(tag.getId())
+                                .build());
+            });
+
             cardDtos.add(CardDto.builder()
                             .id(card.getId())
                             .term(card.getTerm())
                             .definition(card.getDefinition())
                             .image(urlImage)
                             .audio(urlAudio)
+                            .idDesk(idDesk)
+                            .tags(tagDtos)
+
                     .build());
         });
+
+
 
         return ResponseObject.builder()
                 .status("success")

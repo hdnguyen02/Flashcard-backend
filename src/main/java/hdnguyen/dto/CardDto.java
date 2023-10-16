@@ -2,6 +2,7 @@ package hdnguyen.dto;
 
 import lombok.*;
 import java.util.Date;
+import java.util.List;
 
 @Getter
 @Setter
@@ -16,5 +17,6 @@ public class CardDto {
     private String image;
     private String audio;
     private Date createAt;
+    private List<TagDto> tags;
     private Integer idDesk;
 }
