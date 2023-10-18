@@ -8,50 +8,39 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
+
 @RestControllerAdvice
 @ResponseStatus(HttpStatus.BAD_REQUEST)
 public class AppExceptionHandler {
-
     @ExceptionHandler(Exception.class)
-    @ResponseStatus(HttpStatus.BAD_REQUEST)
-    public ResponseObject handleException(Exception e){
+    @ResponseStatus(HttpStatus.BAD_REQUEST) // các lỗi đều trả ra 401
+    public ResponseObject handleException(Exception e) {
         return ResponseObject.builder()
-                .message(e.getMessage())
                 .status("failure")
+                .message(e.getMessage())
                 .data(null)
                 .build();
     }
+
 
     @ExceptionHandler(RegisterException.class)
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     public ResponseObject handleRegisterException(RegisterException e){
             return ResponseObject.builder()
-                    .message(e.getMessage())
                     .status("failure")
+                    .message(e.getMessage())
                     .data(e.getListError())
                     .build();
     }
 
 
-
-    @ExceptionHandler(IllegalArgumentException.class)
-    @ResponseStatus(HttpStatus.BAD_REQUEST)
-    public ResponseObject handleIllegalArgumentException(IllegalArgumentException e) {
-        return ResponseObject.builder()
-                .message(e.getMessage())
-                .status("failure")
-                .data(null)
-                .build();
-    }
-
     @ExceptionHandler(StorageException.class)
     @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
     public ResponseObject handleStorageException(StorageException e) {
         return ResponseObject.builder()
-                .message(e.getMessage())
                 .status("failure")
+                .message(e.getMessage())
                 .data(null)
                 .build();
     }
-
 }

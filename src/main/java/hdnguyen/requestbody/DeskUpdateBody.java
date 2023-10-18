@@ -2,6 +2,7 @@ package hdnguyen.requestbody;
 
 import lombok.*;
 
+
 import java.util.List;
 
 @Getter
@@ -13,5 +14,5 @@ public class DeskUpdateBody {
     private String name;
     private String description;
     private Boolean isPublic;
-    private List<Integer> idLabels; // danh sách id Label.
+    private List<Integer> idLabels;
 }

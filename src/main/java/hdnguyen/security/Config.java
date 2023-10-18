@@ -22,10 +22,9 @@ public class Config {
     private final UserDao userDao;
 
     @Bean
-    public UserDetailsService userDetailsService()  { // đang implement interface để có thể lấy lên user từ db
+    public UserDetailsService userDetailsService()  {
         return email-> userDao.findById(email).orElseThrow(() -> new UsernameNotFoundException("not found user!"));
     }
-
     @Bean
     public PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
@@ -43,8 +42,4 @@ public class Config {
     public AuthenticationManager authenticationManager(AuthenticationConfiguration config) throws Exception {
         return config.getAuthenticationManager();
     }
-
-
-
-
 }
