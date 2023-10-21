@@ -39,6 +39,11 @@ public class DeskService {
                 .user(user)
                 .createAt(new Date(System.currentTimeMillis()))
                 .labels(labels)
+                .studyCardNumber(15)
+                .reviewCardNumber(300)
+                .learnedCardNumber(0)
+                .reviewedCardNumber(0)
+                .lastDate(null)
                 .build();
         Set<String> userDeskName = new HashSet<>();
         user.getDesks().forEach(userDesk -> {
@@ -76,6 +81,7 @@ public class DeskService {
                             .description(desk.getDescription())
                             .isPublic(desk.getIsPublic())
                             .createAt(desk.getCreateAt())
+                            .cardNumber(desk.getCards().size())
                             .labels(labelDtos)
                             .build()
             );

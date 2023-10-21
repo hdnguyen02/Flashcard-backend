@@ -20,10 +20,10 @@ public class CardController {
     private final StorageService storageService;
     private final CardService cardService;
 
-    @GetMapping
+    @GetMapping("study")
     @ResponseStatus(HttpStatus.OK)
-    public ResponseObject getCardWithIdDesk(@RequestParam(name="idDesk") Integer idDesk, HttpServletRequest request) throws Exception {
-        return cardService.getCardWithIdDesk(idDesk, request);
+    public ResponseObject getCardWithIdDesk(@RequestParam(name="deskId") Integer deskId, HttpServletRequest request) throws Exception {
+        return cardService.getCardWithIdDesk(deskId, request);
     }
 
     @PostMapping("add")
@@ -39,7 +39,6 @@ public class CardController {
 
         String imageName = storageService.save(image, TypeFile.image);
         String audioName = storageService.save(audio, TypeFile.audio);
-
         return cardService.addCard(term, definition, imageName, audioName, extractInfo, idDeskAddCard,idTags);
     }
 }

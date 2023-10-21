@@ -16,5 +16,6 @@ public class DeskDto {
     private Boolean isPublic;
     private String name;
     private List<LabelDto> labels;
+    private Integer cardNumber; 
     private Date createAt;
 }

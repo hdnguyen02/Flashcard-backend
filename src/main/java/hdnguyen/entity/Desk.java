@@ -9,12 +9,13 @@ import java.util.List;
 
 
 
-@Entity(name = "desks")
+@Entity
 @Getter
 @Setter
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
+@Table(name="desks")
 public class Desk {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -40,6 +41,17 @@ public class Desk {
 
     @Column(name = "create_at")
     private Date createAt;
+
+    @Column(name = "study_card_number")
+    private Integer studyCardNumber;
+    @Column(name = "review_card_number")
+    private Integer reviewCardNumber;
+    @Column(name = "learned_card_number")
+    private Integer learnedCardNumber;
+    @Column(name = "reviewed_card_number")
+    private Integer reviewedCardNumber;
+    @Column(name = "last_date")
+    private Date lastDate;
 }
 
 // gửi lên bao gồm: hình ảnh, audio.

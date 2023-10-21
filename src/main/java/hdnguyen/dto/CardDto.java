@@ -18,5 +18,11 @@ public class CardDto {
     private String audio;
     private Date createAt;
     private List<TagDto> tags;
-    private Integer idDesk;
+    private Integer repetitions;
+    private Date lastStudyDate;
+    private Integer interval;
+    private float eFactor;
+    private Date dueDate;
 }
+
+
