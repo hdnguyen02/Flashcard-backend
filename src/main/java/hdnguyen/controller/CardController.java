@@ -2,14 +2,15 @@ package hdnguyen.controller;
 
 import hdnguyen.common.TypeFile;
 import hdnguyen.dto.ResponseObject;
+import hdnguyen.dto.WrapperCardDto;
 import hdnguyen.service.CardService;
 import hdnguyen.service.StorageService;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
+import org.apache.coyote.Response;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
-
 import java.util.List;
 
 @RestController
@@ -26,6 +27,13 @@ public class CardController {
         return cardService.getCardWithIdDesk(deskId, request);
     }
 
+
+    @PutMapping("study/{deskId}")
+    @ResponseStatus(HttpStatus.OK)
+    public ResponseObject putCardStudy(@RequestBody WrapperCardDto wrapperCardDto, @PathVariable("deskId") Integer deskId) throws Exception {
+        return cardService.updateCardsStudyAndReview(wrapperCardDto, deskId);
+    }
+
     @PostMapping("add")
     @ResponseStatus(HttpStatus.CREATED)
     public ResponseObject addCard(
@@ -36,6 +44,7 @@ public class CardController {
             @RequestParam("idDeskAddCard") Integer idDeskAddCard,
             @RequestParam(value = "idTags", required = false) List<Integer> idTags
             ) throws  Exception {
+
 
         String imageName = storageService.save(image, TypeFile.image);
         String audioName = storageService.save(audio, TypeFile.audio);

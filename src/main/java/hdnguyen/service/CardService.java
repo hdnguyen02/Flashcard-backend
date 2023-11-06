@@ -18,10 +18,9 @@ import jakarta.persistence.TypedQuery;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.time.LocalDate;
+import java.text.SimpleDateFormat;
 import java.util.*;
 
 @Service
@@ -51,8 +50,9 @@ public class CardService {
                     .id(idTag)
                     .build());
         });
-
-
+        if (extractInfo.equals("null") || extractInfo.equals("")) {
+            extractInfo = null;
+        }
         Card addCard = Card.builder()
                 .term(term).definition(definition)
                 .image(image).audio(audio).extractInfo(extractInfo)
@@ -63,7 +63,7 @@ public class CardService {
                 .lastStudyDate(null)
                 .dueDate(null)
                 .interval(1)
-                .eFactor(2f)
+                .easeFactor(2f)
                 .build();
         try {
             cardDao.save(addCard);
@@ -114,7 +114,7 @@ public class CardService {
                     .repetitions(card.getRepetitions())
                     .interval(card.getInterval())
                     .dueDate(card.getDueDate())
-                    .eFactor(card.getEFactor())
+                    .easeFactor(card.getEaseFactor())
                     .lastStudyDate(card.getLastStudyDate())
                     .build());
         });
@@ -138,7 +138,14 @@ public class CardService {
         int reviewedCardNumber = desk.getReviewedCardNumber();
         int studyCardNumber = desk.getStudyCardNumber();
         int reviewCardNumber = desk.getReviewCardNumber();
-        if (lastDate != null && lastDate.compareTo(new Date()) == 0 ) {
+
+        SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
+
+        String strLastDate = dateFormat.format(lastDate);
+        String strNowDate =  dateFormat.format(new Date());
+
+        if (strLastDate.equals(strNowDate) ) {
+            System.out.println("Đã học rồi");
             if (learnedCardNumber == studyCardNumber && reviewedCardNumber == reviewCardNumber) {
                 return ResponseObject.builder()
                         .status("success")
@@ -149,6 +156,7 @@ public class CardService {
             else {
                 studyCardNumber = studyCardNumber - learnedCardNumber;
                 reviewCardNumber = reviewCardNumber - reviewedCardNumber;
+                System.out.println(studyCardNumber + " " + reviewCardNumber);
             }
         }
 
@@ -176,6 +184,84 @@ public class CardService {
                 .status("success")
                 .message("Truy vấn thành công")
                 .data(wrapperCardDto)
+                .build();
+    }
+
+
+
+    @Transactional
+    public ResponseObject updateCardsStudyAndReview(WrapperCardDto wrapperCardDto, int deskId) throws Exception {
+
+        List<CardDto> studyCards = wrapperCardDto.getStudyCards();
+        List<CardDto> reviewCards = wrapperCardDto.getReviewCards();
+
+        Optional<Desk> optionalDesk = deskDao.findById(deskId);
+        if (optionalDesk.isEmpty()) throw new Exception("Không tồn tại bộ thẻ!");
+        Desk desk = optionalDesk.get();
+        if (studyCards.size() == 0 && reviewCards.size() == 0) {return null;}
+        desk.setLastDate(new Date());
+        desk.setReviewedCardNumber(reviewCards.size());
+        desk.setLearnedCardNumber(studyCards.size());
+        try {
+            deskDao.save(desk);
+        }
+        catch (Exception e) {
+            throw new Exception(e.getMessage());
+        }
+        for (CardDto studyCard : studyCards) {
+            studyCard.setLastStudyDate(new Date());
+            Calendar calendar = Calendar.getInstance();
+            calendar.setTime(studyCard.getLastStudyDate());
+            calendar.add(Calendar.DAY_OF_MONTH, studyCard.getInterval());
+            Date dueDate = calendar.getTime();
+            studyCard.setDueDate(dueDate);
+            Card card = this.cardDtoChangeToCard(studyCard, deskId);
+            try {
+                cardDao.save(card);
+            } catch (Exception e) {
+                throw new Exception(e.getMessage());
+            }
+        }
+        for (CardDto reviewCard : reviewCards) {
+            reviewCard.setLastStudyDate(new Date());
+            Calendar calendar = Calendar.getInstance();
+            calendar.setTime(reviewCard.getLastStudyDate());
+            calendar.add(Calendar.DAY_OF_MONTH, reviewCard.getInterval());
+            Date dueDate = calendar.getTime();
+            reviewCard.setDueDate(dueDate);
+            Card card = this.cardDtoChangeToCard(reviewCard, deskId);
+            try {
+                cardDao.save(card);
+            } catch (Exception e) {
+                throw new Exception(e.getMessage());
+            }
+        }
+        return ResponseObject.builder()
+                .status("success")
+                .message("Cập nhập cards thành công!")
+                .data(wrapperCardDto)
+                .build();
+    }
+    private Card cardDtoChangeToCard(CardDto cardDto, int deskId) {
+        List<Tag> tags = new ArrayList<>();
+        cardDto.getTags().forEach(tagDto -> {
+            tags.add(Tag.builder().id(tagDto.getId()).build());
+        });
+        return Card.builder()
+                .id(cardDto.getId())
+                .term(cardDto.getTerm())
+                .definition(cardDto.getDefinition())
+                .image(cardDto.getImage())
+                .audio(cardDto.getAudio())
+                .extractInfo(cardDto.getExtractInfo())
+                .createAt(cardDto.getCreateAt())
+                .desk(Desk.builder().id(deskId).build())
+                .tags(tags)
+                .repetitions(cardDto.getRepetitions())
+                .lastStudyDate(cardDto.getLastStudyDate())
+                .interval(cardDto.getInterval())
+                .easeFactor(cardDto.getEaseFactor())
+                .dueDate(cardDto.getDueDate())
                 .build();
     }
 }

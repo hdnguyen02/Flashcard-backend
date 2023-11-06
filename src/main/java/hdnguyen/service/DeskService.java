@@ -2,6 +2,7 @@ package hdnguyen.service;
 
 import hdnguyen.common.Helper;
 import hdnguyen.dao.DeskDao;
+import hdnguyen.entity.Card;
 import hdnguyen.requestbody.DeskRequestBody;
 import hdnguyen.dto.DeskDto;
 import hdnguyen.dto.ResponseObject;
@@ -10,6 +11,9 @@ import hdnguyen.entity.Desk;
 import hdnguyen.entity.Label;
 import hdnguyen.entity.User;
 import hdnguyen.requestbody.DeskUpdateBody;
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.PersistenceContext;
+import jakarta.persistence.TypedQuery;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -21,6 +25,8 @@ public class DeskService {
 
     private final DeskDao deskDao;
     private final Helper helper;
+    @PersistenceContext
+    private EntityManager entityManager;
 
     public ResponseObject addDesk(DeskRequestBody deskDto) throws Exception {
         List<Label> labels = new ArrayList<>();
@@ -64,10 +70,26 @@ public class DeskService {
                 .build();
     }
 
-    public ResponseObject getAll(Boolean isPublic, String sortBy) {
+    public ResponseObject getAll(String [] aliasLabels, String orderBy,String sortBy) {
 
-        User user = helper.getCurentUser();
-        List<Desk> desks = user.getDesks();
+        // trước tiên kiểm tra xem giá trị đưa lên
+        // tiếp tục lọc ra xem.
+        String strQuery = null;
+        TypedQuery<Desk> queryDesk;
+        String email = helper.getCurentUser().getEmail(); // lấy ra email hiện tại sau đó check xem.
+        if (aliasLabels != null) {
+            strQuery = "SELECT d from Desk d JOIN d.labels l WHERE d.user.email=:email AND l.alias IN :aliasLabels ORDER BY d." + orderBy + " " + sortBy;
+            queryDesk = entityManager.createQuery(strQuery, Desk.class);
+            queryDesk.setParameter("aliasLabels", Arrays.asList(aliasLabels));
+            queryDesk.setParameter("email", email);
+        }
+        else { // không lọc theo labels
+            strQuery = "SELECT d from Desk d d.user.email=:email ORDER BY d." + orderBy + " " + sortBy;
+            queryDesk = entityManager.createQuery(strQuery, Desk.class);
+            queryDesk.setParameter("email", email);
+        }
+
+        List<Desk> desks =queryDesk.getResultList();
         List<DeskDto> deskResponses = new ArrayList<>();
         desks.forEach(desk -> {
             List<LabelDto> labelDtos = new ArrayList<>();
@@ -174,6 +196,7 @@ public class DeskService {
                 .id(desk.getId())
                 .name(desk.getName())
                 .description(desk.getDescription())
+                .cardNumber(desk.getCards().size())
                 .isPublic(desk.getIsPublic())
                 .labels(labelDtos)
                 .createAt(desk.getCreateAt())
@@ -185,4 +208,9 @@ public class DeskService {
                     .data(deskResponse)
                     .build();
     }
+
+    // tìm kiếm, lọc desk. card
+    // cho lọc thẻ + sắp xếp
+
+
 }

@@ -21,7 +21,7 @@ public class CardDto {
     private Integer repetitions;
     private Date lastStudyDate;
     private Integer interval;
-    private float eFactor;
+    private float easeFactor;
     private Date dueDate;
 }
 

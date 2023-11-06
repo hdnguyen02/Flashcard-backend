@@ -37,8 +37,8 @@ public class Card {
     @Column(name = "last_study_date")
     private Date lastStudyDate;
     private Integer interval;
-    @Column(name = "e_factor")
-    private Float eFactor;
+    @Column(name = "ease_factor")
+    private Float easeFactor;
     @Column(name = "due_date")
     private Date dueDate;
 }

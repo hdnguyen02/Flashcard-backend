@@ -14,6 +14,7 @@ public class Label {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
     private String name;
+    private String alias;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "id_topic")

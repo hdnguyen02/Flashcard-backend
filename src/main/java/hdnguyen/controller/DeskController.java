@@ -8,6 +8,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.Arrays;
+
 @RestController
 @CrossOrigin("*")
 @RequiredArgsConstructor
@@ -30,17 +32,23 @@ public class DeskController {
     }
 
     // cập nhập dữ liệu.
-    @PutMapping("update/{id}")
+    @PutMapping("edit/{id}")
     @ResponseStatus(HttpStatus.OK)
-    public ResponseObject updateDesk(@PathVariable Integer id, @RequestBody DeskUpdateBody deskUpdateBody) throws  Exception {
+                public ResponseObject updateDesk(@PathVariable Integer id, @RequestBody DeskUpdateBody deskUpdateBody) throws  Exception {
         return deskService.updateDesk(id, deskUpdateBody);
     }
 
 
     @GetMapping("all")
     @ResponseStatus(HttpStatus.OK)
-    public ResponseObject getAll(@RequestParam(required = false) Boolean isPublic,@RequestParam(required = false) String sortBy) {
-        return deskService.getAll(isPublic, sortBy);
+    public ResponseObject getAll(@RequestParam(required = false, defaultValue = "name") String sortBy,
+                                 @RequestParam(required = false, defaultValue = "asc") String orderBy,
+                                 @RequestParam(required = false) String labels
+                                )
+    {
+
+        String [] aliasLabels = labels.split(",");
+        return deskService.getAll(aliasLabels, orderBy, sortBy);
     }
 
     @GetMapping("detail/{id}")
@@ -48,7 +56,4 @@ public class DeskController {
     public ResponseObject getDeskWithId(@PathVariable Integer id) throws Exception {
         return deskService.getDeskWithId(id);
     }
-
-
-
 }

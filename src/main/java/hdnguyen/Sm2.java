@@ -16,7 +16,7 @@ public class Sm2 {
 
     public static Sm2Value calc(int quality, int repetitions, int previousInterval, float previousEaseFactor) {
         Sm2Value sm2Value = new Sm2Value();
-        if (quality >= 3) { // good
+        if (quality >= 3) {
             if (repetitions == 0) {
                 sm2Value.setInterval(1);
             }
@@ -59,7 +59,6 @@ public class Sm2 {
             }
     }
 }
-
 @Getter
 @Setter
 class Sm2Value {
