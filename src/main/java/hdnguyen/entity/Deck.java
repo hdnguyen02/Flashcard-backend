@@ -15,8 +15,8 @@ import java.util.List;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-@Table(name="desks")
-public class Desk {
+@Table(name="decks")
+public class Deck {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
@@ -31,11 +31,11 @@ public class Desk {
     private User user;
 
     @ManyToMany(fetch = FetchType.EAGER)
-    @JoinTable( name = "desk_label", joinColumns = @JoinColumn(name = "id_desk"),inverseJoinColumns = @JoinColumn(name = "id_label"))
+    @JoinTable( name = "deck_label", joinColumns = @JoinColumn(name = "id_deck"),inverseJoinColumns = @JoinColumn(name = "id_label"))
     private List<Label> labels;
 
 
-    @OneToMany(mappedBy = "desk",fetch = FetchType.EAGER)
+    @OneToMany(mappedBy = "deck",fetch = FetchType.EAGER)
     @JsonIgnore
     private List<Card> cards;
 

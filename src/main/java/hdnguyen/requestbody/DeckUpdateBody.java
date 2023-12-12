@@ -10,7 +10,7 @@ import java.util.List;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class DeskUpdateBody {
+public class DeckUpdateBody {
     private String name;
     private String description;
     private Boolean isPublic;

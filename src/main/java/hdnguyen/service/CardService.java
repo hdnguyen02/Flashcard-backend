@@ -3,13 +3,13 @@ package hdnguyen.service;
 import hdnguyen.common.Helper;
 import hdnguyen.common.TypeFile;
 import hdnguyen.dao.CardDao;
-import hdnguyen.dao.DeskDao;
+import hdnguyen.dao.DeckDao;
 import hdnguyen.dto.CardDto;
 import hdnguyen.dto.ResponseObject;
 import hdnguyen.dto.TagDto;
 import hdnguyen.dto.WrapperCardDto;
 import hdnguyen.entity.Card;
-import hdnguyen.entity.Desk;
+import hdnguyen.entity.Deck;
 import hdnguyen.entity.Tag;
 import hdnguyen.entity.User;
 import jakarta.persistence.EntityManager;
@@ -31,14 +31,14 @@ public class CardService {
     @PersistenceContext
     private EntityManager entityManager;
     private final CardDao cardDao;
-    private final DeskDao deskDao;
+    private final DeckDao deckDao;
     private final Helper helper;
 
 
 
     public ResponseObject addCard( String term,String definition,String image,String audio,String extractInfo, Integer idDeskAddCard, List<Integer> idTags) throws Exception {
         User user = helper.getCurentUser();
-        Optional<Desk> deskAddCard = deskDao.findById(idDeskAddCard);
+        Optional<Deck> deskAddCard = deckDao.findById(idDeskAddCard);
         if (deskAddCard.isEmpty()) throw new Exception("Không tồn tại bộ thẻ này!");
         if (!deskAddCard.get().getUser().getEmail().equals(user.getEmail())) {
             throw new Exception("Unauthorized!");
@@ -56,7 +56,7 @@ public class CardService {
         Card addCard = Card.builder()
                 .term(term).definition(definition)
                 .image(image).audio(audio).extractInfo(extractInfo)
-                .desk(deskAddCard.get())
+                .deck(deskAddCard.get())
                 .tags(tags)
                 .createAt(new Date(System.currentTimeMillis()))
                 .repetitions(0)
@@ -127,17 +127,17 @@ public class CardService {
     public ResponseObject getCardWithIdDesk (Integer deskId, HttpServletRequest request) throws Exception {
 
         String email = helper.getCurentUser().getEmail();
-        if (!deskDao.existDeskWithEmail(deskId, email)) throw new Exception("Desk not found!");
-        Optional<Desk> optionalDesk = deskDao.findById(deskId);
+        if (!deckDao.existDeckWithEmail(deskId, email)) throw new Exception("Desk not found!");
+        Optional<Deck> optionalDesk = deckDao.findById(deskId);
         if (optionalDesk.isEmpty()) {
             throw new Exception("Desk not found");
         }
-        Desk desk = optionalDesk.get();
-        Date lastDate = desk.getLastDate();
-        int learnedCardNumber = desk.getLearnedCardNumber();
-        int reviewedCardNumber = desk.getReviewedCardNumber();
-        int studyCardNumber = desk.getStudyCardNumber();
-        int reviewCardNumber = desk.getReviewCardNumber();
+        Deck deck = optionalDesk.get();
+        Date lastDate = deck.getLastDate();
+        int learnedCardNumber = deck.getLearnedCardNumber();
+        int reviewedCardNumber = deck.getReviewedCardNumber();
+        int studyCardNumber = deck.getStudyCardNumber();
+        int reviewCardNumber = deck.getReviewCardNumber();
 
         SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
 
@@ -195,15 +195,15 @@ public class CardService {
         List<CardDto> studyCards = wrapperCardDto.getStudyCards();
         List<CardDto> reviewCards = wrapperCardDto.getReviewCards();
 
-        Optional<Desk> optionalDesk = deskDao.findById(deskId);
+        Optional<Deck> optionalDesk = deckDao.findById(deskId);
         if (optionalDesk.isEmpty()) throw new Exception("Không tồn tại bộ thẻ!");
-        Desk desk = optionalDesk.get();
+        Deck deck = optionalDesk.get();
         if (studyCards.size() == 0 && reviewCards.size() == 0) {return null;}
-        desk.setLastDate(new Date());
-        desk.setReviewedCardNumber(reviewCards.size());
-        desk.setLearnedCardNumber(studyCards.size());
+        deck.setLastDate(new Date());
+        deck.setReviewedCardNumber(reviewCards.size());
+        deck.setLearnedCardNumber(studyCards.size());
         try {
-            deskDao.save(desk);
+            deckDao.save(deck);
         }
         catch (Exception e) {
             throw new Exception(e.getMessage());
@@ -255,7 +255,7 @@ public class CardService {
                 .audio(cardDto.getAudio())
                 .extractInfo(cardDto.getExtractInfo())
                 .createAt(cardDto.getCreateAt())
-                .desk(Desk.builder().id(deskId).build())
+                .deck(Deck.builder().id(deskId).build())
                 .tags(tags)
                 .repetitions(cardDto.getRepetitions())
                 .lastStudyDate(cardDto.getLastStudyDate())

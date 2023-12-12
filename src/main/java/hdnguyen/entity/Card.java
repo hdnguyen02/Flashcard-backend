@@ -28,8 +28,8 @@ public class Card {
     @Column(name = "create_at")
     private Date createAt;
     @ManyToOne(fetch = FetchType.EAGER)
-    @JoinColumn(name = "id_desk")
-    private Desk desk;
+    @JoinColumn(name = "id_deck")
+    private Deck deck;
     @ManyToMany(fetch = FetchType.EAGER)
     @JoinTable( name = "card_tag", joinColumns = @JoinColumn(name = "id_card"),inverseJoinColumns = @JoinColumn(name = "id_tag"))
     private List<Tag> tags;

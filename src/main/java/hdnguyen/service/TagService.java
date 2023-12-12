@@ -21,7 +21,7 @@ public class TagService {
     private final TagDao tagDao;
     private final Helper helper;
 
-    public ResponseObject getAllTag() {
+    public ResponseObject getTags() {
         List<TagDto> tagDtos = new ArrayList<>();
         List<Tag> tags = helper.getCurentUser().getTags();
         tags.forEach(tag -> {

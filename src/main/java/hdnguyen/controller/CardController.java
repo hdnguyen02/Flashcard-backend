@@ -16,25 +16,26 @@ import java.util.List;
 @RestController
 @CrossOrigin("*")
 @RequiredArgsConstructor
-@RequestMapping("api/v1/card")
+@RequestMapping("api/v1/card") // sai
 public class CardController {
     private final StorageService storageService;
     private final CardService cardService;
 
-    @GetMapping("study")
+
+    @GetMapping("study") // sai ( khong dung danh tu )
     @ResponseStatus(HttpStatus.OK)
     public ResponseObject getCardWithIdDesk(@RequestParam(name="deskId") Integer deskId, HttpServletRequest request) throws Exception {
         return cardService.getCardWithIdDesk(deskId, request);
     }
 
 
-    @PutMapping("study/{deskId}")
+    @PutMapping("study/{deskId}") // sai
     @ResponseStatus(HttpStatus.OK)
     public ResponseObject putCardStudy(@RequestBody WrapperCardDto wrapperCardDto, @PathVariable("deskId") Integer deskId) throws Exception {
         return cardService.updateCardsStudyAndReview(wrapperCardDto, deskId);
     }
 
-    @PostMapping("add")
+    @PostMapping("add") // sai
     @ResponseStatus(HttpStatus.CREATED)
     public ResponseObject addCard(
             @RequestParam(name="term") String term, @RequestParam(name="definition") String definition,

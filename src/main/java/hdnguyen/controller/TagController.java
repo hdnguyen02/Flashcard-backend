@@ -11,11 +11,11 @@ import java.util.Map;
 @RestController
 @CrossOrigin("*")
 @RequiredArgsConstructor
-@RequestMapping("api/v1/tag")
+@RequestMapping("api/v1") // sai
 public class TagController {
     private final TagService tagService;
 
-    @PostMapping("add")
+    @PostMapping("/tags")
     @ResponseStatus(HttpStatus.CREATED)
     public ResponseObject addTag(@RequestBody Map<String, String> requestBody) throws Exception {
         String name = requestBody.get("name");
@@ -23,9 +23,9 @@ public class TagController {
         return tagService.addTag(name);
     }
 
-    @GetMapping("all")
+    @GetMapping("/tags") // thiếu => nên chỉ ra tag của ai /{idUser}/tags/{idTag}
     @ResponseStatus(HttpStatus.OK)
     public ResponseObject getAllTag()  {
-        return tagService.getAllTag();
+        return tagService.getTags();
     }
 }

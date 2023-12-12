@@ -11,12 +11,12 @@ import org.springframework.web.bind.annotation.*;
 @RestController
 @CrossOrigin("*")
 @RequiredArgsConstructor
-@RequestMapping("api/v1/topic")
+@RequestMapping("api/v1") // sai
 public class TopicController {
 
     private final TopicService topicService;
 
-    @GetMapping("all")
+    @GetMapping("/topics")
     @ResponseStatus(HttpStatus.OK)
     public ResponseObject getTopics(){
         return topicService.getTopics();
