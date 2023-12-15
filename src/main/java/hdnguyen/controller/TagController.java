@@ -11,21 +11,21 @@ import java.util.Map;
 @RestController
 @CrossOrigin("*")
 @RequiredArgsConstructor
-@RequestMapping("api/v1") // sai
+@RequestMapping("api/v1")
 public class TagController {
     private final TagService tagService;
 
     @PostMapping("/tags")
     @ResponseStatus(HttpStatus.CREATED)
-    public ResponseObject addTag(@RequestBody Map<String, String> requestBody) throws Exception {
+    public ResponseObject createTag(@RequestBody Map<String, String> requestBody) throws Exception {
         String name = requestBody.get("name");
         if (name == null) throw new Exception("Thiếu dữ liệu");
-        return tagService.addTag(name);
+        return tagService.createTag(name);
     }
 
-    @GetMapping("/tags") // thiếu => nên chỉ ra tag của ai /{idUser}/tags/{idTag}
+    @GetMapping("/tags")
     @ResponseStatus(HttpStatus.OK)
-    public ResponseObject getAllTag()  {
+    public ResponseObject getTags()  {
         return tagService.getTags();
     }
 }

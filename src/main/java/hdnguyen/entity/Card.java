@@ -11,6 +11,7 @@ import java.util.List;
 @Entity
 @Getter
 @Setter
+@ToString
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
@@ -33,12 +34,9 @@ public class Card {
     @ManyToMany(fetch = FetchType.EAGER)
     @JoinTable( name = "card_tag", joinColumns = @JoinColumn(name = "id_card"),inverseJoinColumns = @JoinColumn(name = "id_tag"))
     private List<Tag> tags;
-    private Integer repetitions;
-    @Column(name = "last_study_date")
-    private Date lastStudyDate;
+    private Integer repetition;
     private Integer interval;
-    @Column(name = "ease_factor")
-    private Float easeFactor;
-    @Column(name = "due_date")
-    private Date dueDate;
+    private Date due;
+    private Float ef;
+    private String type;
 }

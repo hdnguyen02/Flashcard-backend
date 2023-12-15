@@ -41,17 +41,16 @@ public class Deck {
 
     @Column(name = "create_at")
     private Date createAt;
-
-    @Column(name = "study_card_number")
-    private Integer studyCardNumber;
-    @Column(name = "review_card_number")
-    private Integer reviewCardNumber;
-    @Column(name = "learned_card_number")
-    private Integer learnedCardNumber;
-    @Column(name = "reviewed_card_number")
-    private Integer reviewedCardNumber;
-    @Column(name = "last_date")
-    private Date lastDate;
+    @Column(name = "new_limit")
+    private Integer newLimit;
+    @Column(name = "review_limit")
+    private Integer reviewLimit;
+    @Column(name = "total_studied_new")
+    private Integer totalStudiedNew;
+    @Column(name = "total_studied_review")
+    private Integer totalStudiedReview;
+    @Column(name = "recent_alter")
+    private Date recentAlter;
 }
 
 // gửi lên bao gồm: hình ảnh, audio.

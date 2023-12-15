@@ -1,54 +1,53 @@
 package hdnguyen.controller;
 
-import hdnguyen.common.TypeFile;
 import hdnguyen.dto.ResponseObject;
-import hdnguyen.dto.WrapperCardDto;
+import hdnguyen.requestbody.CardStudy;
 import hdnguyen.service.CardService;
 import hdnguyen.service.StorageService;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
-import org.apache.coyote.Response;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.multipart.MultipartFile;
-import java.util.List;
 
+import java.util.List;
 @RestController
 @CrossOrigin("*")
 @RequiredArgsConstructor
-@RequestMapping("api/v1/card") // sai
+@RequestMapping("api/v1")
 public class CardController {
     private final StorageService storageService;
     private final CardService cardService;
 
-
-    @GetMapping("study") // sai ( khong dung danh tu )
+    @GetMapping("/decks/{id-deck}/cards/study")
     @ResponseStatus(HttpStatus.OK)
-    public ResponseObject getCardWithIdDesk(@RequestParam(name="deskId") Integer deskId, HttpServletRequest request) throws Exception {
-        return cardService.getCardWithIdDesk(deskId, request);
+    public ResponseObject getCardsToStudy(@PathVariable(name = "id-deck") Integer idDeck, HttpServletRequest request) throws Exception {
+        return cardService.getCardsToStudy(idDeck, request);
+    }
+
+    @PutMapping("/decks/{id-deck}/cards/study")
+    @ResponseStatus(HttpStatus.OK)
+    public ResponseObject calcCardStudy(@PathVariable(name = "id-deck") Integer idDeck, @RequestBody CardStudy cardStudy) throws Exception {
+        return cardService.calcCardStudy(idDeck, cardStudy);
     }
 
 
-    @PutMapping("study/{deskId}") // sai
-    @ResponseStatus(HttpStatus.OK)
-    public ResponseObject putCardStudy(@RequestBody WrapperCardDto wrapperCardDto, @PathVariable("deskId") Integer deskId) throws Exception {
-        return cardService.updateCardsStudyAndReview(wrapperCardDto, deskId);
-    }
-
-    @PostMapping("add") // sai
+    @PostMapping("decks/{id-deck}/cards")
     @ResponseStatus(HttpStatus.CREATED)
-    public ResponseObject addCard(
-            @RequestParam(name="term") String term, @RequestParam(name="definition") String definition,
-            @RequestParam(name="extractInfo",required = false) String extractInfo,
-            @RequestParam(value = "image", required = false) MultipartFile image,
-            @RequestParam(value = "audio", required = false) MultipartFile audio,
-            @RequestParam("idDeskAddCard") Integer idDeskAddCard,
+    public ResponseObject createCard(
+            @PathVariable(name = "id-deck") Integer idDeck,
+            @RequestParam(value = "term") String term, @RequestParam String definition,
             @RequestParam(value = "idTags", required = false) List<Integer> idTags
+//            @RequestParam(required = false) String extractInfo,
+//            @RequestParam(value = "image", required = false) MultipartFile image,
+//            @RequestParam(value = "audio", required = false) MultipartFile audio
             ) throws  Exception {
 
-
-        String imageName = storageService.save(image, TypeFile.image);
-        String audioName = storageService.save(audio, TypeFile.audio);
-        return cardService.addCard(term, definition, imageName, audioName, extractInfo, idDeskAddCard,idTags);
+//        String imageName = storageService.save(image, TypeFile.image);
+//        String audioName = storageService.save(audio, TypeFile.audio);
+        return cardService.createCard(term, definition, idDeck,idTags);
     }
+
+    // gửi đến card thẻ học.
+
+
 }

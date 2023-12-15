@@ -1,8 +1,8 @@
 package hdnguyen.dto;
 
 import lombok.*;
-import java.util.Date;
 import java.util.List;
+import java.util.Map;
 
 @Getter
 @Setter
@@ -13,16 +13,19 @@ public class CardDto {
     private Integer id;
     private String term;
     private String definition;
-    private String extractInfo;
-    private String image;
-    private String audio;
-    private Date createAt;
     private List<TagDto> tags;
-    private Integer repetitions;
-    private Date lastStudyDate;
-    private Integer interval;
-    private float easeFactor;
-    private Date dueDate;
+    private Map<String, Integer> options;
+    private String type;
+//    private String extractInfo;
+//    private String image;
+//    private String audio;
+//    private Date createAt;
+//
+//    private Integer repetitions;
+//    private Date lastStudyDate;
+//    private Integer interval;
+//    private float easeFactor;
+//    private Date dueDate;
 }
 
 
