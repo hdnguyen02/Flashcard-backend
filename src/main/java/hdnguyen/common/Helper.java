@@ -16,8 +16,12 @@ public class Helper {
                 .build()
                 .toString();
     }
-    public User getCurentUser(){
+    public User getUser(){
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         return (User)authentication.getPrincipal();
+    }
+    public String getEMail() {
+        User user = this.getUser();
+        return user.getEmail();
     }
 }

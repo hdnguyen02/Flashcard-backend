@@ -36,19 +36,18 @@ public class DeckService {
             labels.add(label);
         });
 
-        User user = helper.getCurentUser();
+        User user = helper.getUser();
         Deck addDeck = Deck.builder()
                 .name(deskDto.getName())
-                .description(deskDto.getDescription())
                 .isPublic(deskDto.getIsPublic())
+                .description(deskDto.getDescription())
+                .createAt((new Date()))
+                .newLimit(10)
+                .reviewLimit(30)
                 .user(user)
-                .createAt(new Date(System.currentTimeMillis()))
                 .labels(labels)
-                .studyCardNumber(15)
-                .reviewCardNumber(300)
-                .learnedCardNumber(0)
-                .reviewedCardNumber(0)
-                .lastDate(null)
+
+
                 .build();
         Set<String> userDeskName = new HashSet<>();
         user.getDecks().forEach(userDesk -> {
@@ -71,24 +70,23 @@ public class DeckService {
 
     public ResponseObject getDecks(String [] aliasLabels, String orderBy, String sortBy) {
 
-        // trước tiên kiểm tra xem giá trị đưa lên
-        // tiếp tục lọc ra xem.
         String strQuery = null;
-        TypedQuery<Deck> queryDesk;
-        String email = helper.getCurentUser().getEmail(); // lấy ra email hiện tại sau đó check xem.
+        TypedQuery<Deck> queryDeck;
+        String email = helper.getUser().getEmail();
         if (aliasLabels != null) {
             strQuery = "SELECT d from Deck d JOIN d.labels l WHERE d.user.email=:email AND l.alias IN :aliasLabels ORDER BY d." + orderBy + " " + sortBy;
-            queryDesk = entityManager.createQuery(strQuery, Deck.class);
-            queryDesk.setParameter("aliasLabels", Arrays.asList(aliasLabels));
-            queryDesk.setParameter("email", email);
+            queryDeck = entityManager.createQuery(strQuery, Deck.class);
+            queryDeck.setParameter("aliasLabels", Arrays.asList(aliasLabels));
+            queryDeck.setParameter("email", email);
         }
         else { // không lọc theo labels
-            strQuery = "SELECT d from Deck d d.user.email=:email ORDER BY d." + orderBy + " " + sortBy;
-            queryDesk = entityManager.createQuery(strQuery, Deck.class);
-            queryDesk.setParameter("email", email);
+            strQuery = "SELECT d from Deck d WHERE d.user.email=:email ORDER BY d." + orderBy + " " + sortBy;
+            queryDeck = entityManager.createQuery(strQuery, Deck.class);
+            queryDeck.setParameter("email", email);
+
         }
 
-        List<Deck> decks =queryDesk.getResultList();
+        List<Deck> decks = queryDeck.getResultList();
         List<DeskDto> deskResponses = new ArrayList<>();
         decks.forEach(desk -> {
             List<LabelDto> labelDtos = new ArrayList<>();
@@ -133,7 +131,7 @@ public class DeckService {
     private Deck getDeckWithOfUser(int id) throws Exception{
         Optional<Deck> optionalDesk = deckDao.findById(id);
         if (optionalDesk.isEmpty()) throw new Exception("Không tìm thấy bộ thẻ!");
-        User user = helper.getCurentUser();
+        User user = helper.getUser();
         Deck deck = optionalDesk.get();
         if (!deck.getUser().getEmail().equals(user.getEmail())) throw new Exception("Unauthorized!");
         return deck;

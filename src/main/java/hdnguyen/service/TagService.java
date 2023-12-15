@@ -23,7 +23,7 @@ public class TagService {
 
     public ResponseObject getTags() {
         List<TagDto> tagDtos = new ArrayList<>();
-        List<Tag> tags = helper.getCurentUser().getTags();
+        List<Tag> tags = helper.getUser().getTags();
         tags.forEach(tag -> {
             tagDtos.add(
                     TagDto.builder()
@@ -41,8 +41,8 @@ public class TagService {
                 .build();
     }
 
-    public ResponseObject addTag(String name) throws Exception {
-        User user = helper.getCurentUser();
+    public ResponseObject createTag(String name) throws Exception {
+        User user = helper.getUser();
         List<Tag> tags = user.getTags();
 
         Set<String> UserTagName = new HashSet<>();
