@@ -37,7 +37,6 @@ public class CardService {
     private final Helper helper;
     private final CardQuery cardQuery;
 
-
     public ResponseObject createCard(String term, String definition, Integer idDeck, List<Integer> idTags) throws Exception {
         Optional<Deck> desk = deckDao.findById(idDeck);
         if (desk.isEmpty()) throw new Exception("Không tồn tại bộ thẻ!");
@@ -204,6 +203,11 @@ public class CardService {
 //        System.out.println(historyDao.findAll());
 //        System.out.println(new Date());
 
+        String email = helper.getEMail();
+        Optional<Deck> oDeck = deckDao.findById(idDeck);
+        if (oDeck.isEmpty()) throw new Exception("Desk not found");
+        if (!deckDao.existDeckWithEmail(idDeck, email)) throw new Exception("Unauthorized!");
+        Deck deck = oDeck.get();
 
 
 //        if (oHistory.isPresent()) {
