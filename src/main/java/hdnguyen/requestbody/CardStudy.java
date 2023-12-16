@@ -10,5 +10,5 @@ import lombok.*;
 @AllArgsConstructor
 public class CardStudy {
     private int id;
-    private int q;
+    private int q; // đại diện cho response
 }

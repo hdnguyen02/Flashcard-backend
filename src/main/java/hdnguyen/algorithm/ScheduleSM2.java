@@ -2,7 +2,7 @@ package hdnguyen.algorithm;
 
 
 
-public class Sm2 {
+public class ScheduleSM2 {
     public static OutputSm2 calc(InputSm2 inputSm2) {
         OutputSm2 outputSm2 = new OutputSm2();
         if (inputSm2.getQ() >= 3 ) { // correct response
@@ -17,7 +17,7 @@ public class Sm2 {
             }
             outputSm2.setN(inputSm2.getN() + 1);
         }
-        else {
+        else { // không nhớ.
             outputSm2.setN(0);
             outputSm2.setI(1);
         }
