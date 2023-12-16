@@ -45,12 +45,12 @@ public class Deck {
     private Integer newLimit;
     @Column(name = "review_limit")
     private Integer reviewLimit;
-    @Column(name = "total_studied_new")
-    private Integer totalStudiedNew;
-    @Column(name = "total_studied_review")
-    private Integer totalStudiedReview;
-    @Column(name = "recent_alter")
-    private Date recentAlter;
+//    @Column(name = "total_studied_new")
+//    private Integer totalStudiedNew;
+//    @Column(name = "total_studied_review")
+//    private Integer totalStudiedReview;
+//    @Column(name = "recent_alter")
+//    private Date recentAlter;
 }
 
 // gửi lên bao gồm: hình ảnh, audio.

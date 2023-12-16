@@ -9,17 +9,20 @@ import hdnguyen.common.Response;
 import hdnguyen.component.CardQuery;
 import hdnguyen.dao.CardDao;
 import hdnguyen.dao.DeckDao;
+import hdnguyen.dao.HistoryDao;
 import hdnguyen.dto.CardDto;
 import hdnguyen.dto.ResponseObject;
 import hdnguyen.dto.TagDto;
 import hdnguyen.entity.Card;
 import hdnguyen.entity.Deck;
+import hdnguyen.entity.History;
 import hdnguyen.entity.Tag;
 import hdnguyen.requestbody.CardStudy;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+
 
 import java.text.SimpleDateFormat;
 import java.util.*;
@@ -30,8 +33,10 @@ import java.util.*;
 public class CardService {
     private final CardDao cardDao;
     private final DeckDao deckDao;
+    private final HistoryDao historyDao;
     private final Helper helper;
     private final CardQuery cardQuery;
+
 
     public ResponseObject createCard(String term, String definition, Integer idDeck, List<Integer> idTags) throws Exception {
         Optional<Deck> desk = deckDao.findById(idDeck);
@@ -69,16 +74,63 @@ public class CardService {
 
     public ResponseObject calcCardStudy(int idDeck, CardStudy cardStudy) throws Exception {
 
+        Optional<Deck> oDeck = deckDao.findById(idDeck);
         Optional<Card> oCard = cardDao.findById(cardStudy.getId());
+        if (oDeck.isEmpty()) throw new Exception("Không tồn tại b thẻ này!");
         if (oCard.isEmpty()) throw new Exception("Không tồn tại thẻ này!");
+        Deck deck = oDeck.get();
         Card card = oCard.get();
         if (cardStudy.getQ() < Response.GOOD) { // 0 1 2 > 3
+            SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
+            Optional<History> oHistory = historyDao.findByIdDeckAndDate(deck.getId(), dateFormat.format(new Date()));
+
+            History history;
+            history = oHistory.orElseGet(() -> History.builder()
+                    .idDeck(deck.getId())
+                    .totalStudiedNew(0)
+                    .totalStudiedReview(0)
+                    .date(dateFormat.format(new Date()))
+                    .build());
+
+
+
+            if (card.getType().equals(String.valueOf(CardType.FRESH))) {
+                history.setTotalStudiedNew(history.getTotalStudiedNew() + 1);
+            }
+            else if (card.getType().equals(String.valueOf(CardType.REVIEW))) {
+                history.setTotalStudiedReview(history.getTotalStudiedReview() + 1);
+            }
+
+            historyDao.save(history);
             card.setType(String.valueOf(CardType.LEARNING));
             card.setRepetition(0);
             card.setInterval(0);
             card.setEf(2.5f);
+
+            // đồng thời kiểm tra xem trước đó là card gì cập nhập lại số lượng.
+
         } else {
+            SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
+            Optional<History> oHistory = historyDao.findByIdDeckAndDate(deck.getId(), dateFormat.format(new Date()));
+
+            History history;
+            history = oHistory.orElseGet(() -> History.builder()
+                    .idDeck(deck.getId())
+                    .totalStudiedNew(0)
+                    .totalStudiedReview(0)
+                    .date(dateFormat.format(new Date()))
+                    .build());
+
+
+
+            if (card.getType().equals(String.valueOf(CardType.FRESH))) {
+                history.setTotalStudiedNew(history.getTotalStudiedNew() + 1);
+            }
+            else if (card.getType().equals(String.valueOf(CardType.REVIEW))) {
+                history.setTotalStudiedReview(history.getTotalStudiedReview() + 1);
+            }
             card.setType(String.valueOf(CardType.REVIEW));
+            historyDao.save(history);
             InputSm2 inputSm2 = InputSm2.builder()
                     .q(cardStudy.getQ())
                     .n(card.getRepetition())
@@ -90,7 +142,6 @@ public class CardService {
             card.setInterval(outputSm2.getI());
             card.setEf(outputSm2.getEf());
 
-            System.out.println(outputSm2);
 
             // DUE
             Calendar calendar = Calendar.getInstance();
@@ -149,6 +200,17 @@ public class CardService {
 
 
     public ResponseObject getCardsToStudy(int idDeck, HttpServletRequest request) throws Exception {
+//        Optional<History> oHistory = historyDao.findByIdDeckAndDate(2, new Date());
+//        System.out.println(historyDao.findAll());
+//        System.out.println(new Date());
+
+
+
+//        if (oHistory.isPresent()) {
+//            System.out.println("Có tồn tại");
+//        }
+//        return null;
+
 
         String email = helper.getEMail();
         Optional<Deck> oDeck = deckDao.findById(idDeck);
@@ -158,20 +220,13 @@ public class CardService {
 
         int newLimit = deck.getNewLimit();
         int reviewLimit = deck.getReviewLimit();
-
-        if (deck.getRecentAlter() != null) {
-            SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
-            String strRecentAlter = dateFormat.format(deck.getRecentAlter());
-            String strNow =  dateFormat.format(new Date(    ));
-
-            if (strRecentAlter.equals(strNow)) {
-                int totalStudiedNew = deck.getTotalStudiedNew() != null ? deck.getTotalStudiedNew() : 0;
-                int totalStudiedReview = deck.getTotalStudiedReview() != null ? deck.getTotalStudiedReview() : 0;
-                newLimit = newLimit - totalStudiedNew;
-                reviewLimit = reviewLimit - totalStudiedReview;
-            }
+        SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
+        Optional<History> oHistory = historyDao.findByIdDeckAndDate(deck.getId(), dateFormat.format(new  Date())); // check lịch sử của hôm nay
+        if (oHistory.isPresent()) {
+            History history = oHistory.get();
+                newLimit = newLimit - history.getTotalStudiedNew();
+                reviewLimit = reviewLimit - history.getTotalStudiedReview();
         }
-
 
         List<Card> cards = cardQuery.getCardsToStudy(idDeck, newLimit, reviewLimit);
         List<CardDto> cardsDto = new ArrayList<>();
