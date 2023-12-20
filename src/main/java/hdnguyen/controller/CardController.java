@@ -1,10 +1,12 @@
 package hdnguyen.controller;
 
+import hdnguyen.dto.CardDtoFilter;
 import hdnguyen.dto.ResponseObject;
 import hdnguyen.requestbody.CardStudy;
 import hdnguyen.service.CardService;
 import hdnguyen.service.StorageService;
 import jakarta.servlet.http.HttpServletRequest;
+import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
@@ -47,7 +49,9 @@ public class CardController {
         return cardService.createCard(term, definition, idDeck,idTags);
     }
 
-    // gửi đến card thẻ học.
-
-
+    @GetMapping("cards") // lọc cards
+    @ResponseStatus(HttpStatus.OK)
+    public ResponseObject getCards(@RequestParam(required = false) String filter, @RequestParam(required = false) String value) throws Exception {
+        return cardService.getCards(filter, value);
+    }
 }

@@ -9,7 +9,7 @@ import java.util.Map;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-public class CardDto {
+public class CardDtoStudy {
     private Integer id;
     private String term;
     private String definition;

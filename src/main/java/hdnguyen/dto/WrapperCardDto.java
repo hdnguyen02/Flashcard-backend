@@ -10,6 +10,6 @@ import java.util.List;
 @NoArgsConstructor
 @AllArgsConstructor
 public class WrapperCardDto {
-    private List<CardDto> studyCards;
-    private List<CardDto> reviewCards;
+    private List<CardDtoStudy> studyCards;
+    private List<CardDtoStudy> reviewCards;
 }

@@ -10,7 +10,8 @@ import hdnguyen.component.CardQuery;
 import hdnguyen.dao.CardDao;
 import hdnguyen.dao.DeckDao;
 import hdnguyen.dao.HistoryDao;
-import hdnguyen.dto.CardDto;
+import hdnguyen.dto.CardDtoFilter;
+import hdnguyen.dto.CardDtoStudy;
 import hdnguyen.dto.ResponseObject;
 import hdnguyen.dto.TagDto;
 import hdnguyen.entity.Card;
@@ -18,6 +19,9 @@ import hdnguyen.entity.Deck;
 import hdnguyen.entity.History;
 import hdnguyen.entity.Tag;
 import hdnguyen.requestbody.CardStudy;
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.PersistenceContext;
+import jakarta.persistence.TypedQuery;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
@@ -36,6 +40,9 @@ public class CardService {
     private final HistoryDao historyDao;
     private final Helper helper;
     private final CardQuery cardQuery;
+
+    @PersistenceContext
+    private final EntityManager entityManager;
 
     public ResponseObject createCard(String term, String definition, Integer idDeck, List<Integer> idTags) throws Exception {
         Optional<Deck> desk = deckDao.findById(idDeck);
@@ -57,6 +64,9 @@ public class CardService {
                 .tags(tags)
                 .createAt(new Date(System.currentTimeMillis()))
                 .type(String.valueOf(CardType.FRESH))
+                .interval(0)
+                .repetition(0)
+                .ef(2.5f)
                 .build();
         try {
             cardDao.save(card);
@@ -141,14 +151,12 @@ public class CardService {
             card.setInterval(outputSm2.getI());
             card.setEf(outputSm2.getEf());
 
-
             // DUE
             Calendar calendar = Calendar.getInstance();
             calendar.setTime(new Date());
             calendar.add(Calendar.DAY_OF_MONTH, card.getInterval());
             card.setDue(calendar.getTime());
         }
-
 
         try {
             Card cardUpdate = cardDao.save(card);
@@ -161,7 +169,6 @@ public class CardService {
 
             inputSm2.setQ(Response.GOOD);
             OutputSm2 outputGOOD = ScheduleSM2.calc(inputSm2);
-
 
             if (cardUpdate.getRepetition() != 0 && cardUpdate.getRepetition() != 1) {
                 inputSm2.setQ(Response.EASY); // EASY
@@ -179,7 +186,7 @@ public class CardService {
             });
 
 
-            CardDto cardDto = CardDto.builder()
+            CardDtoStudy cardDtoStudy = CardDtoStudy.builder()
                     .id(cardUpdate.getId())
                     .term(cardUpdate.getTerm())
                     .definition(cardUpdate.getDefinition())
@@ -190,7 +197,7 @@ public class CardService {
             return ResponseObject.builder()
                     .status("success")
                     .message("Update thành công")
-                    .data(cardDto)
+                    .data(cardDtoStudy)
                     .build();
         } catch (Exception e) {
             throw  new Exception(e.getMessage());
@@ -199,29 +206,11 @@ public class CardService {
 
 
     public ResponseObject getCardsToStudy(int idDeck, HttpServletRequest request) throws Exception {
-//        Optional<History> oHistory = historyDao.findByIdDeckAndDate(2, new Date());
-//        System.out.println(historyDao.findAll());
-//        System.out.println(new Date());
-
         String email = helper.getEMail();
         Optional<Deck> oDeck = deckDao.findById(idDeck);
         if (oDeck.isEmpty()) throw new Exception("Desk not found");
         if (!deckDao.existDeckWithEmail(idDeck, email)) throw new Exception("Unauthorized!");
         Deck deck = oDeck.get();
-
-
-//        if (oHistory.isPresent()) {
-//            System.out.println("Có tồn tại");
-//        }
-//        return null;
-
-
-        String email = helper.getEMail();
-        Optional<Deck> oDeck = deckDao.findById(idDeck);
-        if (oDeck.isEmpty()) throw new Exception("Desk not found");
-        if (!deckDao.existDeckWithEmail(idDeck, email)) throw new Exception("Unauthorized!");
-        Deck deck = oDeck.get();
-
         int newLimit = deck.getNewLimit();
         int reviewLimit = deck.getReviewLimit();
         SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
@@ -233,7 +222,7 @@ public class CardService {
         }
 
         List<Card> cards = cardQuery.getCardsToStudy(idDeck, newLimit, reviewLimit);
-        List<CardDto> cardsDto = new ArrayList<>();
+        List<CardDtoStudy> cardsDto = new ArrayList<>();
         cards.forEach(card -> {
 
             Map<String, Integer> options = new HashMap<>();
@@ -265,7 +254,7 @@ public class CardService {
                             .build());
                 });
 
-                cardsDto.add(CardDto.builder()
+                cardsDto.add(CardDtoStudy.builder()
                         .id(card.getId())
                         .term(card.getTerm())
                         .definition(card.getDefinition())
@@ -275,6 +264,65 @@ public class CardService {
                         .build());
             });
 
+        return ResponseObject.builder()
+                .status("success")
+                .message("Truy vấn thành công")
+                .data(cardsDto)
+                .build();
+    }
+
+    public ResponseObject getCards(String filter, String value) throws Exception {
+        String query;
+        TypedQuery<Card> queryCard;
+        String email = helper.getEMail();
+
+        if (filter == null) {
+            query = "SELECT c from Card c WHERE c.deck.user.email =: email";
+            queryCard =  entityManager.createQuery(query, Card.class);
+            queryCard.setParameter("email", email);
+        }
+        else if (filter.equals("id-deck")) {
+            int idDeck = Integer.parseInt(value);
+            query = "SELECT c from Card c WHERE c.deck.user.email =: email AND c.deck.id = :idDeck";
+            queryCard =  entityManager.createQuery(query, Card.class);
+            queryCard.setParameter("email", email);
+            queryCard.setParameter("idDeck", idDeck);
+        }
+        else if (filter.equals("tags")){
+            String [] nameTags = value.split(",");
+            query = "SELECT c from Card c JOIN c.tags t WHERE c.deck.user.email =: email AND t.name IN :nameTags";
+            queryCard =  entityManager.createQuery(query, Card.class);
+            queryCard.setParameter("email", email);
+            queryCard.setParameter("nameTags", Arrays.asList(nameTags));
+        }
+        else if (filter.equals("type")) {
+            query = "SELECT c from Card c WHERE c.deck.user.email =: email AND c.type = :type";
+            queryCard =  entityManager.createQuery(query, Card.class);
+            queryCard.setParameter("email", email);
+            queryCard.setParameter("type", value);
+        }
+        else throw new Exception("params không hợp lệ!");
+        List<Card> cards = queryCard.getResultList();
+        List<CardDtoFilter> cardsDto = new ArrayList<>();
+        cards.forEach(card -> {
+            List<TagDto> tagsDto = new ArrayList<>();
+            List<Tag> lTags = card.getTags();
+            lTags.forEach(tag -> {
+                tagsDto.add(TagDto.builder()
+                        .name(tag.getName())
+                        .id(tag.getId())
+                        .build());
+            });
+
+            cardsDto.add(CardDtoFilter.builder()
+                    .id(card.getId())
+                    .term(card.getTerm())
+                    .definition(card.getDefinition())
+                    .type(card.getType())
+                    .tags(tagsDto)
+                    .idDeck(card.getDeck().getId())
+                    .build());
+        });
         return ResponseObject.builder()
                 .status("success")
                 .message("Truy vấn thành công")
