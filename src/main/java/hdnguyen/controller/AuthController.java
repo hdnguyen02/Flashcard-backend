@@ -6,6 +6,7 @@ import hdnguyen.dto.ResponseObject;
 import hdnguyen.dto.auth.AuthenticateRequest;
 import hdnguyen.dto.auth.RegisterRequest;
 import hdnguyen.service.AuthService;
+import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
@@ -30,6 +31,7 @@ public class AuthController {
         return authService.authenticate(authenticateRequest);
     }
 
+    // thông tin đó vẫn còn => gửi về thông tin người dùng
 
 
 

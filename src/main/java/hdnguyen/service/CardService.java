@@ -10,10 +10,11 @@ import hdnguyen.component.CardQuery;
 import hdnguyen.dao.CardDao;
 import hdnguyen.dao.DeckDao;
 import hdnguyen.dao.HistoryDao;
-import hdnguyen.dto.CardDtoFilter;
-import hdnguyen.dto.CardDtoStudy;
+import hdnguyen.dto.card.CardDto;
+import hdnguyen.dto.card.CardDtoStudy;
 import hdnguyen.dto.ResponseObject;
 import hdnguyen.dto.TagDto;
+import hdnguyen.dto.deck.DeckCardDto;
 import hdnguyen.entity.Card;
 import hdnguyen.entity.Deck;
 import hdnguyen.entity.History;
@@ -22,6 +23,7 @@ import hdnguyen.requestbody.CardStudy;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
 import jakarta.persistence.TypedQuery;
+import jakarta.persistence.criteria.CriteriaBuilder;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
@@ -271,6 +273,35 @@ public class CardService {
                 .build();
     }
 
+    public ResponseObject updateCard( CardDto cardDto) throws Exception {
+        int idDeck = cardDto.getDeck().getId();
+        String email = helper.getEMail();
+        Optional<Deck> oDeck = deckDao.findById(cardDto.getDeck().getId());
+        if (oDeck.isEmpty()) throw new Exception("Không hợp lệ!");
+        if (!deckDao.existDeckWithEmail(idDeck, email)) throw new Exception("Unauthorized!");
+        Optional<Card> oCard = cardDao.findById(cardDto.getId());
+        if (oCard.isEmpty()) throw new Exception("Not found Card!");
+        Card card  = oCard.get();
+        card.setTerm(cardDto.getTerm());
+        card.setDefinition(cardDto.getDefinition());
+        card.setDeck(Deck.builder().id(cardDto.getDeck().getId()).build());
+        cardDao.save(card);
+        return ResponseObject.builder()
+                .data(null)
+                .status("success")
+                .message("Update thành công!")
+                .build();
+    }
+    public ResponseObject deleteCard(int idCard) {
+        cardDao.deleteById(idCard);
+        return ResponseObject.builder()
+                .status("success")
+                .data(null)
+                .message("Delete thành công!")
+                .build();
+    }
+
+
     public ResponseObject getCards(String filter, String value) throws Exception {
         String query;
         TypedQuery<Card> queryCard;
@@ -303,7 +334,7 @@ public class CardService {
         }
         else throw new Exception("params không hợp lệ!");
         List<Card> cards = queryCard.getResultList();
-        List<CardDtoFilter> cardsDto = new ArrayList<>();
+        List<CardDto> cardsDto = new ArrayList<>();
         cards.forEach(card -> {
             List<TagDto> tagsDto = new ArrayList<>();
             List<Tag> lTags = card.getTags();
@@ -314,13 +345,18 @@ public class CardService {
                         .build());
             });
 
-            cardsDto.add(CardDtoFilter.builder()
+            DeckCardDto deckDto = DeckCardDto.builder()
+                    .id(card.getDeck().getId())
+                    .name(card.getDeck().getName())
+                    .build();
+
+            cardsDto.add(CardDto.builder()
                     .id(card.getId())
                     .term(card.getTerm())
                     .definition(card.getDefinition())
                     .type(card.getType())
                     .tags(tagsDto)
-                    .idDeck(card.getDeck().getId())
+                    .deck(deckDto)
                     .build());
         });
         return ResponseObject.builder()
@@ -329,4 +365,5 @@ public class CardService {
                 .data(cardsDto)
                 .build();
     }
+
 }

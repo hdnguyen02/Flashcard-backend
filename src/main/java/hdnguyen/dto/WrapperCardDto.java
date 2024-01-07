@@ -1,5 +1,6 @@
 package hdnguyen.dto;
 
+import hdnguyen.dto.card.CardDtoStudy;
 import lombok.*;
 
 import java.util.List;

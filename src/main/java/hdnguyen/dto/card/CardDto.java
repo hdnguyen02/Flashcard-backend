@@ -1,21 +1,23 @@
-package hdnguyen.dto;
+package hdnguyen.dto.card;
 
+import hdnguyen.dto.TagDto;
+import hdnguyen.dto.deck.DeckCardDto;
 import lombok.*;
 import java.util.List;
-import java.util.Map;
 
 @Getter
 @Setter
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-public class CardDtoStudy {
+public class CardDto {
     private Integer id;
     private String term;
     private String definition;
-    private List<TagDto> tags;
-    private Map<String, Integer> options;
+    private List<TagDto> tags; // có gửi list tag mà.
     private String type;
+    private DeckCardDto deck;
+ //   private Integer idDeck;
 //    private String extractInfo;
 //    private String image;
 //    private String audio;

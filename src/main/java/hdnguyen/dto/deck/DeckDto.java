@@ -1,4 +1,4 @@
-package hdnguyen.dto;
+package hdnguyen.dto.deck;
 
 import hdnguyen.dto.auth.LabelDto;
 import lombok.*;
@@ -10,7 +10,7 @@ import java.util.List;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class DeskDto {
+public class DeckDto {
     private Integer id;
     private String description;
     private Boolean isPublic;

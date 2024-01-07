@@ -3,7 +3,7 @@ package hdnguyen.service;
 import hdnguyen.common.Helper;
 import hdnguyen.dao.DeckDao;
 import hdnguyen.requestbody.DeskRequestBody;
-import hdnguyen.dto.DeskDto;
+import hdnguyen.dto.deck.DeckDto;
 import hdnguyen.dto.ResponseObject;
 import hdnguyen.dto.auth.LabelDto;
 import hdnguyen.entity.Deck;
@@ -87,14 +87,14 @@ public class DeckService {
         }
 
         List<Deck> decks = queryDeck.getResultList();
-        List<DeskDto> deskResponses = new ArrayList<>();
+        List<DeckDto> deskResponses = new ArrayList<>();
         decks.forEach(desk -> {
             List<LabelDto> labelDtos = new ArrayList<>();
             desk.getLabels().forEach(label -> {
                 labelDtos.add(new LabelDto(label.getId(), label.getName()));
             });
             deskResponses.add(
-                    DeskDto.builder()
+                    DeckDto.builder()
                             .id(desk.getId())
                             .name(desk.getName())
                             .description(desk.getDescription())
@@ -157,7 +157,7 @@ public class DeckService {
                 labelsDto.add(LabelDto.builder().id(labelUpdate.getId()).name(labelUpdate.getName()).build());
             });
 
-            DeskDto deskDto = DeskDto.builder()
+            DeckDto deskDto = DeckDto.builder()
                     .id(deckUpdate.getId())
                     .name(deckUpdate.getName())
                     .isPublic(deckUpdate.getIsPublic())
@@ -189,7 +189,7 @@ public class DeckService {
                     .build());
          });
 
-        DeskDto deskResponse = DeskDto.builder()
+        DeckDto deskResponse = DeckDto.builder()
                 .id(deck.getId())
                 .name(deck.getName())
                 .description(deck.getDescription())

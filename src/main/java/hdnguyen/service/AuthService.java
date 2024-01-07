@@ -61,6 +61,8 @@ public class AuthService {
     }
 
 
+
+
     public ResponseObject authenticate(AuthenticateRequest authRequest) {
         authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(
                 authRequest.getEmail(), authRequest.getPassword()

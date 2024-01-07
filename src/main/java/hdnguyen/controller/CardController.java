@@ -1,12 +1,15 @@
 package hdnguyen.controller;
 
-import hdnguyen.dto.CardDtoFilter;
+import com.sun.tools.jconsole.JConsoleContext;
+import com.sun.tools.jconsole.JConsolePlugin;
+import hdnguyen.dto.card.CardDto;
 import hdnguyen.dto.ResponseObject;
 import hdnguyen.requestbody.CardStudy;
+import hdnguyen.requestbody.DeleteCardRequest;
 import hdnguyen.service.CardService;
 import hdnguyen.service.StorageService;
+import jakarta.persistence.criteria.CriteriaBuilder;
 import jakarta.servlet.http.HttpServletRequest;
-import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
@@ -53,5 +56,17 @@ public class CardController {
     @ResponseStatus(HttpStatus.OK)
     public ResponseObject getCards(@RequestParam(required = false) String filter, @RequestParam(required = false) String value) throws Exception {
         return cardService.getCards(filter, value);
+    }
+
+    @PutMapping("cards")
+    @ResponseStatus(HttpStatus.OK)
+    public ResponseObject updateCard( @RequestBody CardDto cardDto) throws Exception {
+        return cardService.updateCard(cardDto);
+    }
+
+    @DeleteMapping("cards/{id}")
+    @ResponseStatus(HttpStatus.OK)
+    public ResponseObject deleteCards(@PathVariable Integer id) {
+        return cardService.deleteCard(id);
     }
 }
