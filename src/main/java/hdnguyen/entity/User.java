@@ -18,6 +18,7 @@ import java.util.*;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
+@ToString
 public class User implements UserDetails {
     @Id
     private String email;
@@ -26,14 +27,14 @@ public class User implements UserDetails {
     private Date birthdate;
 
     @Column(name = "create_at")
-    private LocalDateTime createAt;
+    private Date createAt;
 
     @Column(name = "is_enabled")
     private Boolean isEnabled;
 
     @ManyToMany(fetch = FetchType.EAGER)
     @JoinTable( name = "user_role", joinColumns = @JoinColumn(name = "email_user"),inverseJoinColumns = @JoinColumn(name = "name_role"))
-    private Set<Role> roles = new HashSet<>();
+    private Set<Role> roles;
 
     @OneToMany(mappedBy = "user", fetch = FetchType.EAGER)
     @JsonIgnore

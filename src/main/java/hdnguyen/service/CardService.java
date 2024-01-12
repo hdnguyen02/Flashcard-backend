@@ -273,6 +273,9 @@ public class CardService {
                 .build();
     }
 
+
+    // update card.
+
     public ResponseObject updateCard( CardDto cardDto) throws Exception {
         int idDeck = cardDto.getDeck().getId();
         String email = helper.getEMail();
@@ -285,6 +288,17 @@ public class CardService {
         card.setTerm(cardDto.getTerm());
         card.setDefinition(cardDto.getDefinition());
         card.setDeck(Deck.builder().id(cardDto.getDeck().getId()).build());
+
+        List<Tag> tags = new ArrayList<>();
+        cardDto.getTags().forEach(tagDto -> {
+            tags.add(Tag.builder()
+                    .id(tagDto.getId())
+                    .name(tagDto.getName())
+                    .user(helper.getUser())
+                    .build()
+            );
+        });
+        card.setTags(tags);
         cardDao.save(card);
         return ResponseObject.builder()
                 .data(null)

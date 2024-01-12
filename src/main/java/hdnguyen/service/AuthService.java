@@ -42,7 +42,7 @@ public class AuthService {
                 .password(passwordEncoder.encode(register.getPassword()))
                 .name(register.getName())
                 .birthdate(register.getBirthdate())
-                .createAt(LocalDateTime.now())
+                .createAt(new Date())
                 .isEnabled(true)
                 .roles(roles)
                 .build();
@@ -59,9 +59,6 @@ public class AuthService {
                 .data(authResponse)
                 .build();
     }
-
-
-
 
     public ResponseObject authenticate(AuthenticateRequest authRequest) {
         authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(

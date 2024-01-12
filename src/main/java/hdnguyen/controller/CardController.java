@@ -1,14 +1,10 @@
 package hdnguyen.controller;
 
-import com.sun.tools.jconsole.JConsoleContext;
-import com.sun.tools.jconsole.JConsolePlugin;
 import hdnguyen.dto.card.CardDto;
 import hdnguyen.dto.ResponseObject;
 import hdnguyen.requestbody.CardStudy;
-import hdnguyen.requestbody.DeleteCardRequest;
 import hdnguyen.service.CardService;
 import hdnguyen.service.StorageService;
-import jakarta.persistence.criteria.CriteriaBuilder;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
