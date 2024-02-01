@@ -11,7 +11,7 @@ import java.util.List;
 @AllArgsConstructor
 @NoArgsConstructor
 public class CardDto {
-    private Integer id;
+    private String id;
     private String term;
     private String definition;
     private List<TagDto> tags; // có gửi list tag mà.

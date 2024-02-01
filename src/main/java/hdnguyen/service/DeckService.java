@@ -5,7 +5,7 @@ import hdnguyen.dao.DeckDao;
 import hdnguyen.requestbody.DeskRequestBody;
 import hdnguyen.dto.deck.DeckDto;
 import hdnguyen.dto.ResponseObject;
-import hdnguyen.dto.auth.LabelDto;
+import hdnguyen.dto.LabelDto;
 import hdnguyen.entity.Deck;
 import hdnguyen.entity.Label;
 import hdnguyen.entity.User;
@@ -38,6 +38,7 @@ public class DeckService {
 
         User user = helper.getUser();
         Deck addDeck = Deck.builder()
+                .id(helper.generateUUID())
                 .name(deskDto.getName())
                 .isPublic(deskDto.getIsPublic())
                 .description(deskDto.getDescription())
@@ -112,7 +113,7 @@ public class DeckService {
                 .build();
     }
 
-    public ResponseObject deleteDeck(int id) throws Exception {
+    public ResponseObject deleteDeck(String id) throws Exception {
         Deck deck = this.getDeckWithOfUser(id);
         try {
             deckDao.delete(deck); // xóa desk.
@@ -128,7 +129,7 @@ public class DeckService {
     }
 
 
-    private Deck getDeckWithOfUser(int id) throws Exception{
+    private Deck getDeckWithOfUser(String id) throws Exception{
         Optional<Deck> optionalDesk = deckDao.findById(id);
         if (optionalDesk.isEmpty()) throw new Exception("Không tìm thấy bộ thẻ!");
         User user = helper.getUser();
@@ -138,7 +139,7 @@ public class DeckService {
     }
 
     // update
-    public ResponseObject updateDeck(int id, DeckUpdateBody deckUpdateBody) throws Exception {
+    public ResponseObject updateDeck(String id, DeckUpdateBody deckUpdateBody) throws Exception {
         Deck deck = this.getDeckWithOfUser(id);
         deck.setName(deckUpdateBody.getName());
         deck.setDescription(deckUpdateBody.getDescription());
@@ -177,7 +178,7 @@ public class DeckService {
         }
     }
 
-    public ResponseObject getDeckWithId(int id) throws Exception {
+    public ResponseObject getDeckWithId(String id) throws Exception {
 
         Deck deck = this.getDeckWithOfUser(id);
         List<Label> labels = deck.getLabels();

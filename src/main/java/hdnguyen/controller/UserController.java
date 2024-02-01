@@ -2,11 +2,11 @@ package hdnguyen.controller;
 
 
 import hdnguyen.dto.ResponseObject;
-import hdnguyen.dto.UserDto;
-import hdnguyen.requestbody.Password;
 import hdnguyen.service.UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.Map;
 
 @RestController
 @CrossOrigin("*")
@@ -14,17 +14,14 @@ import org.springframework.web.bind.annotation.*;
 @RequestMapping("api/v1")
 public class UserController {
     private final UserService userService;
-    @GetMapping("user")
-    public ResponseObject getUser () {
-        return userService.getUser();
+
+    @PostMapping("/register")
+    public ResponseObject register(@RequestBody Map<String, String> info) throws Exception {
+        System.out.println("vào nè");
+        return userService.register(info.get("uid"), info.get("email"));
     }
 
-    @PutMapping("user")
-    public ResponseObject updateProfile(@RequestBody UserDto userDto) {
-        return userService.updateUser(userDto);
-    }
-    @PutMapping("password")
-    public ResponseObject updatePassword(@RequestBody Password password) throws Exception {
-        return userService.updatePassword(password);
-    }
+
+
+
 }

@@ -10,7 +10,7 @@ import java.util.List;
 @NoArgsConstructor
 @AllArgsConstructor
 public class DeskRequestBody {
-    private Integer id; // có thể nhận lấy null.
+    private String id; // có thể nhận lấy null.
     private String name;
     private String description;
     private Boolean isPublic;

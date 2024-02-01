@@ -9,6 +9,6 @@ import lombok.*;
 @AllArgsConstructor
 @NoArgsConstructor
 public class DeckCardDto {
-    private Integer id;
+    private String id;
     private String name;
 }

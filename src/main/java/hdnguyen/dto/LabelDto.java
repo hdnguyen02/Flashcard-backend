@@ -1,4 +1,4 @@
-package hdnguyen.dto.auth;
+package hdnguyen.dto;
 
 import lombok.*;
 

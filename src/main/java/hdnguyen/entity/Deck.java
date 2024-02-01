@@ -8,49 +8,46 @@ import java.util.Date;
 import java.util.List;
 
 
-
+@Table(name="decks")
 @Entity
 @Getter
 @Setter
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-@Table(name="decks")
 public class Deck {
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Integer id;
+    @Column(length = 36)
+    private String id;
+
+    @Column(nullable = false, length = 50)
     private String name;
-    @Column(name = "is_public")
+
+    @Column(name = "is_public", nullable = false)
     private Boolean isPublic;
+
     private String description;
 
-
     @ManyToOne(fetch = FetchType.EAGER)
-    @JoinColumn(name="email_user")
+    @JoinColumn(name="uid")
     private User user;
 
     @ManyToMany(fetch = FetchType.EAGER)
     @JoinTable( name = "deck_label", joinColumns = @JoinColumn(name = "id_deck"),inverseJoinColumns = @JoinColumn(name = "id_label"))
     private List<Label> labels;
 
-
     @OneToMany(mappedBy = "deck",fetch = FetchType.EAGER)
     @JsonIgnore
-    private List<Card> cards;
+    private List<ECard> cards;
 
-    @Column(name = "create_at")
+    @Column(name = "create_at", nullable = false)
     private Date createAt;
+
     @Column(name = "new_limit")
     private Integer newLimit;
+
     @Column(name = "review_limit")
     private Integer reviewLimit;
-//    @Column(name = "total_studied_new")
-//    private Integer totalStudiedNew;
-//    @Column(name = "total_studied_review")
-//    private Integer totalStudiedReview;
-//    @Column(name = "recent_alter")
-//    private Date recentAlter;
 }
 
 // gửi lên bao gồm: hình ảnh, audio.

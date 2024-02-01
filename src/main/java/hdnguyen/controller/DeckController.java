@@ -8,7 +8,6 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
-// sau này có cả tính năng share bộ desks.
 @RestController
 @CrossOrigin("*")
 @RequiredArgsConstructor
@@ -24,13 +23,13 @@ public class DeckController {
 
     @DeleteMapping("/decks/{id}")
     @ResponseStatus(HttpStatus.OK)
-    public ResponseObject deleteDeck(@PathVariable Integer id) throws Exception {
+    public ResponseObject deleteDeck(@PathVariable String id) throws Exception {
         return deckService.deleteDeck(id);
     }
 
     @PutMapping("/decks/{id}") // sai
     @ResponseStatus(HttpStatus.OK)
-    public ResponseObject updateDeck(@PathVariable Integer id, @RequestBody DeckUpdateBody deckUpdateBody) throws  Exception {
+    public ResponseObject updateDeck(@PathVariable String id, @RequestBody DeckUpdateBody deckUpdateBody) throws  Exception {
         return deckService.updateDeck(id, deckUpdateBody);
     }
 
@@ -47,7 +46,7 @@ public class DeckController {
 
     @GetMapping("decks/{id}")
     @ResponseStatus(HttpStatus.OK)
-    public ResponseObject getDeckWithId(@PathVariable Integer id) throws Exception {
+    public ResponseObject getDeckWithId(@PathVariable String id) throws Exception {
         return deckService.getDeckWithId(id);
     }
-    }
+}

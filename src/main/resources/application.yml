@@ -1,15 +1,15 @@
 spring:
-  datasource:
-      url: jdbc:sqlserver://localhost:1433;encrypt=true;trustServerCertificate=true;databaseName=quizlet
-      username: sa
-      password: 123456
   jpa:
     properties:
       hibernate:
-        dialect: org.hibernate.dialect.SQLServerDialect
-    jpa:
-      hibernate:
-        ddl-auto: none
+        dialect: org.hibernate.dialect.MySQLDialect
+    hibernate:
+      ddl-auto: update
+  datasource:
+    url: jdbc:mysql://${MYSQL_HOST:localhost}:3306/${MYSQL_DATABASE:flashcard}
+    username: ${MYSQL_USER:root}
+    password: ${MYSQL_ROOT_PASSWORD:123456}
+    driver-class-name: com.mysql.cj.jdbc.Driver
 
 
 

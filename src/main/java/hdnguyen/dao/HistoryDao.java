@@ -8,6 +8,6 @@ import java.util.Date;
 import java.util.Optional;
 
 @Repository
-public interface HistoryDao extends JpaRepository<History, Integer> {
-    Optional<History> findByIdDeckAndDate(Integer idDeck, String date);
+public interface HistoryDao extends JpaRepository<History, String> {
+    Optional<History> findByIdDeckAndDate(String idDeck, String date);
 }

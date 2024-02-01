@@ -1,23 +1,24 @@
 package hdnguyen.dto;
 
-import com.fasterxml.jackson.annotation.JsonFormat;
+import hdnguyen.entity.Role;
+import hdnguyen.entity.User;
 import lombok.*;
-import java.time.LocalDateTime;
-import java.util.Date;
-import java.util.List;
+import java.util.Set;
 
 @Getter
 @Setter
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-@ToString
 public class UserDto {
+    private String uid;
     private String email;
-    private String name;
-    @JsonFormat(pattern = "yyyy-MM-dd")
-    private Date birthdate;
-    @JsonFormat(pattern = "yyyy-MM-dd")
-    private Date createAt;
-    private List<RoleDto> roles;
+    private Set<Role> roles;
+
+    public UserDto(User user) {
+        this.uid = user.getUid();
+        this.email = user.getEmail();
+        this.roles = user.getRoles();
+    }
 }
+

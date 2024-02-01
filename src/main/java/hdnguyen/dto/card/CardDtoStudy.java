@@ -11,7 +11,7 @@ import java.util.Map;
 @AllArgsConstructor
 @NoArgsConstructor
 public class CardDtoStudy {
-    private Integer id;
+    private String id;
     private String term;
     private String definition;
     private List<TagDto> tags;

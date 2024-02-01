@@ -3,7 +3,7 @@ package hdnguyen.service;
 import hdnguyen.dao.TopicDao;
 import hdnguyen.dto.ResponseObject;
 import hdnguyen.dto.TopicDto;
-import hdnguyen.dto.auth.LabelDto;
+import hdnguyen.dto.LabelDto;
 import hdnguyen.entity.Topic;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;

@@ -21,13 +21,13 @@ public class CardController {
 
     @GetMapping("/decks/{id-deck}/cards/study")
     @ResponseStatus(HttpStatus.OK)
-    public ResponseObject getCardsToStudy(@PathVariable(name = "id-deck") Integer idDeck, HttpServletRequest request) throws Exception {
+    public ResponseObject getCardsToStudy(@PathVariable(name = "id-deck") String idDeck, HttpServletRequest request) throws Exception {
         return cardService.getCardsToStudy(idDeck, request);
     }
 
     @PutMapping("/decks/{id-deck}/cards/study")
     @ResponseStatus(HttpStatus.OK)
-    public ResponseObject calcCardStudy(@PathVariable(name = "id-deck") Integer idDeck, @RequestBody CardStudy cardStudy) throws Exception {
+    public ResponseObject calcCardStudy(@PathVariable(name = "id-deck") String idDeck, @RequestBody CardStudy cardStudy) throws Exception {
         return cardService.calcCardStudy(idDeck, cardStudy);
     }
 
@@ -35,9 +35,9 @@ public class CardController {
     @PostMapping("decks/{id-deck}/cards")
     @ResponseStatus(HttpStatus.CREATED)
     public ResponseObject createCard(
-            @PathVariable(name = "id-deck") Integer idDeck,
+            @PathVariable(name = "id-deck")  String idDeck,
             @RequestParam(value = "term") String term, @RequestParam String definition,
-            @RequestParam(value = "idTags", required = false) List<Integer> idTags
+            @RequestParam(value = "idTags", required = false) List<String> idTags
 //            @RequestParam(required = false) String extractInfo,
 //            @RequestParam(value = "image", required = false) MultipartFile image,
 //            @RequestParam(value = "audio", required = false) MultipartFile audio
@@ -62,7 +62,7 @@ public class CardController {
 
     @DeleteMapping("cards/{id}")
     @ResponseStatus(HttpStatus.OK)
-    public ResponseObject deleteCards(@PathVariable Integer id) {
+    public ResponseObject deleteCards(@PathVariable String id) {
         return cardService.deleteCard(id);
     }
 }

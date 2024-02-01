@@ -25,8 +25,8 @@ public class ConfigSecurity {
     private HandlerExceptionResolver exceptionResolver;
 
     @Bean
-    public JwtFilter jwtFilter() {
-        return new JwtFilter(exceptionResolver);
+    public FirebaseFilter firebaseFilter() {
+        return new FirebaseFilter(exceptionResolver);
     }
 
     @Autowired
@@ -37,13 +37,12 @@ public class ConfigSecurity {
         http
                 .csrf(AbstractHttpConfigurer::disable)
                 .authorizeHttpRequests(auth -> auth
-                       .requestMatchers("api/v1/auth/**", "api/v1/topics/**", "/card/**").permitAll()
+                       .requestMatchers("api/v1/topics/**").permitAll()
                         .anyRequest().authenticated()
                 )
-                .logout(logout -> logout.logoutUrl("api/v1/logout"))
                 .sessionManagement(ssm -> ssm.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authenticationProvider(authenticationProvider)
-                .addFilterBefore(jwtFilter(), UsernamePasswordAuthenticationFilter.class);
+                .addFilterBefore(firebaseFilter(), UsernamePasswordAuthenticationFilter.class);
         return http.build();
     }
 }

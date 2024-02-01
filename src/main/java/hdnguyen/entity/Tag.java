@@ -4,7 +4,8 @@ import jakarta.persistence.*;
 import lombok.*;
 import java.util.List;
 
-@Entity(name = "tags")
+@Entity
+@Table(name = "tags")
 @Getter
 @Setter
 @Builder
@@ -12,13 +13,17 @@ import java.util.List;
 @AllArgsConstructor
 public class Tag {
      @Id
-     @GeneratedValue(strategy = GenerationType.IDENTITY)
-     private Integer id;
+     @Column(length = 36)
+     private String id;
+
+     @Column(nullable = false, length =  50)
      private String name;
+
      @ManyToOne(fetch = FetchType.LAZY)
-     @JoinColumn(name="email_user")
+     @JoinColumn(name="uid")
      private User user;
-     @ManyToMany(fetch = FetchType.EAGER)
+
+     @ManyToMany(fetch = FetchType.LAZY)
      @JoinTable( name = "card_tag", joinColumns = @JoinColumn(name = "id_tag"),inverseJoinColumns = @JoinColumn(name = "id_card"))
-     private List<Card> cards;
+     private List<ECard> cards;
 }

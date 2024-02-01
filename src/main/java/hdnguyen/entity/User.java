@@ -7,33 +7,26 @@ import lombok.*;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
-
-import java.time.LocalDateTime;
 import java.util.*;
 
-
-@Entity(name = "users")
+@Table(name = "users")
+@Entity
 @Getter
 @Setter
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-@ToString
 public class User implements UserDetails {
     @Id
+    @Column(length = 36)
+    private String uid;
+
+    @Column(nullable = false, length = 50)
     private String email;
-    private String password;
-    private String name;
-    private Date birthdate;
 
-    @Column(name = "create_at")
-    private Date createAt;
-
-    @Column(name = "is_enabled")
-    private Boolean isEnabled;
 
     @ManyToMany(fetch = FetchType.EAGER)
-    @JoinTable( name = "user_role", joinColumns = @JoinColumn(name = "email_user"),inverseJoinColumns = @JoinColumn(name = "name_role"))
+    @JoinTable( name = "user_role", joinColumns = @JoinColumn(name = "uid"),inverseJoinColumns = @JoinColumn(name = "name_role"))
     private Set<Role> roles;
 
     @OneToMany(mappedBy = "user", fetch = FetchType.EAGER)
@@ -52,8 +45,13 @@ public class User implements UserDetails {
     }
 
     @Override
+    public String getPassword() {
+        return "firebase";
+    }
+
+    @Override
     public String getUsername() {
-        return this.email;
+        return this.uid;
     }
 
     @Override
@@ -73,6 +71,6 @@ public class User implements UserDetails {
 
     @Override
     public boolean isEnabled() {
-        return this.isEnabled;
+        return true;
     }
 }

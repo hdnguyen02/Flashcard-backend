@@ -9,6 +9,6 @@ import lombok.*;
 @NoArgsConstructor
 @AllArgsConstructor
 public class CardStudy {
-    private int id;
+    private String id;
     private int q; // đại diện cho response
 }

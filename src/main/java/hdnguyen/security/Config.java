@@ -23,7 +23,7 @@ public class Config {
 
     @Bean
     public UserDetailsService userDetailsService()  {
-        return email-> userDao.findById(email).orElseThrow(() -> new UsernameNotFoundException("not found user!"));
+        return  uid-> userDao.findById(uid).orElseThrow(() -> new UsernameNotFoundException("not found user!"));
     }
     @Bean
     public PasswordEncoder passwordEncoder() {

@@ -9,7 +9,7 @@ import org.springframework.stereotype.Repository;
 
 
 @Repository
-public interface DeckDao extends JpaRepository<Deck, Integer> {
-    @Query("SELECT COUNT(d) > 0 FROM Deck d WHERE d.id = :idDeck AND d.user.email = :email")
-    boolean existDeckWithEmail(@Param("idDeck") int idDeck, @Param("email") String email);
+public interface DeckDao extends JpaRepository<Deck, String> {
+    @Query("SELECT COUNT(d) > 0 FROM Deck d WHERE d.id = :idDeck AND d.user.uid = :uid")
+    boolean existDeckWithEmail(@Param("idDeck") String idDeck, @Param("uid") String uid);
 }

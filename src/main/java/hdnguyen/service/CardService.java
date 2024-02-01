@@ -15,7 +15,7 @@ import hdnguyen.dto.card.CardDtoStudy;
 import hdnguyen.dto.ResponseObject;
 import hdnguyen.dto.TagDto;
 import hdnguyen.dto.deck.DeckCardDto;
-import hdnguyen.entity.Card;
+import hdnguyen.entity.ECard;
 import hdnguyen.entity.Deck;
 import hdnguyen.entity.History;
 import hdnguyen.entity.Tag;
@@ -23,7 +23,6 @@ import hdnguyen.requestbody.CardStudy;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
 import jakarta.persistence.TypedQuery;
-import jakarta.persistence.criteria.CriteriaBuilder;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
@@ -46,10 +45,10 @@ public class CardService {
     @PersistenceContext
     private final EntityManager entityManager;
 
-    public ResponseObject createCard(String term, String definition, Integer idDeck, List<Integer> idTags) throws Exception {
+    public ResponseObject createCard(String term, String definition, String idDeck, List<String> idTags) throws Exception {
         Optional<Deck> desk = deckDao.findById(idDeck);
         if (desk.isEmpty()) throw new Exception("Không tồn tại bộ thẻ!");
-        if (!deckDao.existDeckWithEmail(idDeck, helper.getEMail())) throw new Exception("Unauthorized!");
+        if (deckDao.existDeckWithEmail(idDeck, helper.getEMail())) throw new Exception("Unauthorized!");
 
         List<Tag> tags = new ArrayList<>();
         idTags.forEach(idTag -> {
@@ -60,13 +59,13 @@ public class CardService {
 //        if (extractInfo.equals("null") || extractInfo.equals("")) {
 //            extractInfo = null;
 //        }
-        Card card = Card.builder()
+        ECard card = ECard.builder()
                 .term(term).definition(definition)
                 .deck(desk.get())
                 .tags(tags)
                 .createAt(new Date(System.currentTimeMillis()))
                 .type(String.valueOf(CardType.FRESH))
-                .interval(0)
+                .backticks(0)
                 .repetition(0)
                 .ef(2.5f)
                 .build();
@@ -83,14 +82,14 @@ public class CardService {
                 .build();
     }
 
-    public ResponseObject calcCardStudy(int idDeck, CardStudy cardStudy) throws Exception {
+    public ResponseObject calcCardStudy(String idDeck, CardStudy cardStudy) throws Exception {
 
         Optional<Deck> oDeck = deckDao.findById(idDeck);
-        Optional<Card> oCard = cardDao.findById(cardStudy.getId());
+        Optional<ECard> oCard = cardDao.findById(cardStudy.getId());
         if (oDeck.isEmpty()) throw new Exception("Không tồn tại b thẻ này!");
         if (oCard.isEmpty()) throw new Exception("Không tồn tại thẻ này!");
         Deck deck = oDeck.get();
-        Card card = oCard.get();
+        ECard card = oCard.get();
         if (cardStudy.getQ() < Response.GOOD) { // 0 1 2 > 3
             SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
             Optional<History> oHistory = historyDao.findByIdDeckAndDate(deck.getId(), dateFormat.format(new Date()));
@@ -115,7 +114,7 @@ public class CardService {
             historyDao.save(history);
             card.setType(String.valueOf(CardType.LEARNING));
             card.setRepetition(0);
-            card.setInterval(0);
+            card.setBackticks(0);
             card.setEf(2.5f);
 
             // đồng thời kiểm tra xem trước đó là card gì cập nhập lại số lượng.
@@ -145,28 +144,28 @@ public class CardService {
             InputSm2 inputSm2 = InputSm2.builder()
                     .q(cardStudy.getQ())
                     .n(card.getRepetition())
-                    .i(card.getInterval())
+                    .i(card.getBackticks())
                     .ef(card.getEf())
                     .build();
             OutputSm2 outputSm2 = ScheduleSM2.calc(inputSm2);
             card.setRepetition(outputSm2.getN());
-            card.setInterval(outputSm2.getI());
+            card.setBackticks(outputSm2.getI());
             card.setEf(outputSm2.getEf());
 
             // DUE
             Calendar calendar = Calendar.getInstance();
             calendar.setTime(new Date());
-            calendar.add(Calendar.DAY_OF_MONTH, card.getInterval());
-            card.setDue(calendar.getTime());
+            calendar.add(Calendar.DAY_OF_MONTH, card.getBackticks());
+            card.setDueDate(calendar.getTime());
         }
 
         try {
-            Card cardUpdate = cardDao.save(card);
+            ECard cardUpdate = cardDao.save(card);
             Map<String, Integer> options = new HashMap<>();
             InputSm2 inputSm2 = InputSm2.builder()
                     .n(cardUpdate.getRepetition())
                     .ef(cardUpdate.getEf())
-                    .i(cardUpdate.getInterval())
+                    .i(cardUpdate.getBackticks())
                     .build();
 
             inputSm2.setQ(Response.GOOD);
@@ -207,11 +206,11 @@ public class CardService {
     }
 
 
-    public ResponseObject getCardsToStudy(int idDeck, HttpServletRequest request) throws Exception {
+    public ResponseObject getCardsToStudy(String idDeck, HttpServletRequest request) throws Exception {
         String email = helper.getEMail();
         Optional<Deck> oDeck = deckDao.findById(idDeck);
         if (oDeck.isEmpty()) throw new Exception("Desk not found");
-        if (!deckDao.existDeckWithEmail(idDeck, email)) throw new Exception("Unauthorized!");
+        if (deckDao.existDeckWithEmail(idDeck, email)) throw new Exception("Unauthorized!");
         Deck deck = oDeck.get();
         int newLimit = deck.getNewLimit();
         int reviewLimit = deck.getReviewLimit();
@@ -223,7 +222,7 @@ public class CardService {
                 reviewLimit = reviewLimit - history.getTotalStudiedReview();
         }
 
-        List<Card> cards = cardQuery.getCardsToStudy(idDeck, newLimit, reviewLimit);
+        List<ECard> cards = cardQuery.getCardsToStudy(idDeck, newLimit, reviewLimit);
         List<CardDtoStudy> cardsDto = new ArrayList<>();
         cards.forEach(card -> {
 
@@ -231,7 +230,7 @@ public class CardService {
                 InputSm2 inputSm2 = InputSm2.builder()
                         .n(card.getRepetition())
                         .ef(card.getEf())
-                        .i(card.getInterval())
+                        .i(card.getBackticks())
                         .build();
 
                 inputSm2.setQ(3); // GOOD
@@ -277,14 +276,14 @@ public class CardService {
     // update card.
 
     public ResponseObject updateCard( CardDto cardDto) throws Exception {
-        int idDeck = cardDto.getDeck().getId();
+        String idDeck = cardDto.getDeck().getId();
         String email = helper.getEMail();
         Optional<Deck> oDeck = deckDao.findById(cardDto.getDeck().getId());
         if (oDeck.isEmpty()) throw new Exception("Không hợp lệ!");
-        if (!deckDao.existDeckWithEmail(idDeck, email)) throw new Exception("Unauthorized!");
-        Optional<Card> oCard = cardDao.findById(cardDto.getId());
+        if (deckDao.existDeckWithEmail(idDeck, email)) throw new Exception("Unauthorized!");
+        Optional<ECard> oCard = cardDao.findById(cardDto.getId());
         if (oCard.isEmpty()) throw new Exception("Not found Card!");
-        Card card  = oCard.get();
+        ECard card  = oCard.get();
         card.setTerm(cardDto.getTerm());
         card.setDefinition(cardDto.getDefinition());
         card.setDeck(Deck.builder().id(cardDto.getDeck().getId()).build());
@@ -306,7 +305,7 @@ public class CardService {
                 .message("Update thành công!")
                 .build();
     }
-    public ResponseObject deleteCard(int idCard) {
+    public ResponseObject deleteCard(String idCard) {
         cardDao.deleteById(idCard);
         return ResponseObject.builder()
                 .status("success")
@@ -318,36 +317,36 @@ public class CardService {
 
     public ResponseObject getCards(String filter, String value) throws Exception {
         String query;
-        TypedQuery<Card> queryCard;
+        TypedQuery<ECard> queryCard;
         String email = helper.getEMail();
 
         if (filter == null) {
             query = "SELECT c from Card c WHERE c.deck.user.email =: email";
-            queryCard =  entityManager.createQuery(query, Card.class);
+            queryCard =  entityManager.createQuery(query, ECard.class);
             queryCard.setParameter("email", email);
         }
         else if (filter.equals("id-deck")) {
             int idDeck = Integer.parseInt(value);
             query = "SELECT c from Card c WHERE c.deck.user.email =: email AND c.deck.id = :idDeck";
-            queryCard =  entityManager.createQuery(query, Card.class);
+            queryCard =  entityManager.createQuery(query, ECard.class);
             queryCard.setParameter("email", email);
             queryCard.setParameter("idDeck", idDeck);
         }
         else if (filter.equals("tags")){
             String [] nameTags = value.split(",");
             query = "SELECT c from Card c JOIN c.tags t WHERE c.deck.user.email =: email AND t.name IN :nameTags";
-            queryCard =  entityManager.createQuery(query, Card.class);
+            queryCard =  entityManager.createQuery(query, ECard.class);
             queryCard.setParameter("email", email);
             queryCard.setParameter("nameTags", Arrays.asList(nameTags));
         }
         else if (filter.equals("type")) {
             query = "SELECT c from Card c WHERE c.deck.user.email =: email AND c.type = :type";
-            queryCard =  entityManager.createQuery(query, Card.class);
+            queryCard =  entityManager.createQuery(query, ECard.class);
             queryCard.setParameter("email", email);
             queryCard.setParameter("type", value);
         }
         else throw new Exception("params không hợp lệ!");
-        List<Card> cards = queryCard.getResultList();
+        List<ECard> cards = queryCard.getResultList();
         List<CardDto> cardsDto = new ArrayList<>();
         cards.forEach(card -> {
             List<TagDto> tagsDto = new ArrayList<>();

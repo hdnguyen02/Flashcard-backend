@@ -1,7 +1,6 @@
 package hdnguyen.dto;
 
 
-import hdnguyen.dto.auth.LabelDto;
 import lombok.*;
 
 import java.util.List;

@@ -8,6 +8,8 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
+import java.util.UUID;
+
 @Component
 public class Helper {
     public String getUrlRoot(HttpServletRequest request) {
@@ -24,4 +26,9 @@ public class Helper {
         User user = this.getUser();
         return user.getEmail();
     }
+    public String generateUUID() {
+        UUID uuid = UUID.randomUUID();
+        return uuid.toString();
+    }
+
 }
