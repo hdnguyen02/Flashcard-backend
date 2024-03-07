@@ -39,7 +39,13 @@ public class FirebaseFilter extends OncePerRequestFilter {
             @NonNull HttpServletRequest request,
             @NonNull HttpServletResponse response,
             @NonNull FilterChain filterChain ) throws ServletException,IOException {
+
         try {
+            String path = request.getServletPath();
+            if (path.contains("api/v1/users") ) {
+                filterChain.doFilter(request, response);
+                return;
+            }
             final String authorization = request.getHeader("Authorization");
             if (authorization == null || !authorization.startsWith("Bearer ")) {
                 filterChain.doFilter(request, response);

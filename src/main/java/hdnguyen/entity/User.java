@@ -21,9 +21,8 @@ public class User implements UserDetails {
     @Column(length = 36)
     private String uid;
 
-    @Column(nullable = false, length = 50)
+    @Column(length = 50)
     private String email;
-
 
     @ManyToMany(fetch = FetchType.EAGER)
     @JoinTable( name = "user_role", joinColumns = @JoinColumn(name = "uid"),inverseJoinColumns = @JoinColumn(name = "name_role"))

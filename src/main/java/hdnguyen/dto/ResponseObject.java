@@ -12,7 +12,19 @@ import lombok.NoArgsConstructor;
 @Builder
 @Data
 public class ResponseObject {
-    private String status;
+    private Boolean isSuccess;
     private String message;
     private Object data;
+
+    public ResponseObject(Object data) {
+        this.isSuccess = true;
+        this.message = "Success";
+        this.data = data;
+    }
+
+
+
+
+
+
 }

@@ -25,5 +25,5 @@ public class Tag {
 
      @ManyToMany(fetch = FetchType.LAZY)
      @JoinTable( name = "card_tag", joinColumns = @JoinColumn(name = "id_tag"),inverseJoinColumns = @JoinColumn(name = "id_card"))
-     private List<ECard> cards;
+     private List<Card> cards;
 }

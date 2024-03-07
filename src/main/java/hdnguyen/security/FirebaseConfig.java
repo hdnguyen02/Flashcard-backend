@@ -19,7 +19,7 @@ public class FirebaseConfig {
             InputStream serviceAccount = resource.getInputStream();
             FirebaseOptions options = new FirebaseOptions.Builder()
                     .setCredentials(GoogleCredentials.fromStream(serviceAccount))
-                    // .setDatabaseUrl("https://your-project-id.firebaseio.com") // Thay thế bằng URL của Firebase Realtime Database hoặc Cloud Firestore của bạn
+                    .setStorageBucket("flashcard-d55bd.appspot.com")
                     .build();
             return FirebaseApp.initializeApp(options);
 
@@ -29,4 +29,6 @@ public class FirebaseConfig {
             return null;
         }
     }
+
+
 }

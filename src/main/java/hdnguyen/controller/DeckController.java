@@ -1,52 +1,55 @@
 package hdnguyen.controller;
 
-import hdnguyen.requestbody.DeskRequestBody;
+import hdnguyen.dto.deck.DeckDto;
+import hdnguyen.dto.deck.LDeckDto;
+import hdnguyen.rqbody.DeckRQBody;
 import hdnguyen.dto.ResponseObject;
-import hdnguyen.requestbody.DeckUpdateBody;
 import hdnguyen.service.DeckService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 @RestController
 @CrossOrigin("*")
 @RequiredArgsConstructor
+@ResponseStatus(HttpStatus.OK)
 @RequestMapping("api/v1")
+
 public class DeckController {
+
     private final DeckService deckService;
-    @PostMapping("/decks")
-    @ResponseStatus(HttpStatus.CREATED)
-    public ResponseObject createDeck(@RequestBody DeskRequestBody deskDto) throws Exception {
-        System.out.println(deskDto.toString());
-       return deckService.createDeck(deskDto);
-    }
-
-    @DeleteMapping("/decks/{id}")
-    @ResponseStatus(HttpStatus.OK)
-    public ResponseObject deleteDeck(@PathVariable String id) throws Exception {
-        return deckService.deleteDeck(id);
-    }
-
-    @PutMapping("/decks/{id}") // sai
-    @ResponseStatus(HttpStatus.OK)
-    public ResponseObject updateDeck(@PathVariable String id, @RequestBody DeckUpdateBody deckUpdateBody) throws  Exception {
-        return deckService.updateDeck(id, deckUpdateBody);
-    }
 
 
     @GetMapping("/decks")
-    @ResponseStatus(HttpStatus.OK)
-    public ResponseObject getDesks(@RequestParam(required = false, defaultValue = "asc") String sortBy,
-                                   @RequestParam(required = false, defaultValue = "name") String orderBy,
-                                   @RequestParam(required = false) String labels ) {
+    public ResponseObject getDecks() {
+        List<LDeckDto> deckDtos = deckService.getDesks();
+        return new ResponseObject(deckDtos);
+    }
 
-        // String [] aliasLabels = labels.split(",");
-        return deckService.getDecks(null, orderBy, sortBy);
+    @PostMapping("/decks")
+    @ResponseStatus(HttpStatus.CREATED)
+    public ResponseObject createDeck(@RequestBody DeckRQBody deckRQBody) throws Exception {
+        DeckDto deckDto = deckService.createDeck(deckRQBody);
+        return new ResponseObject(deckDto);
+    }
+
+    @DeleteMapping("/decks/{id}")
+    public ResponseObject deleteDeck(@PathVariable String id) throws Exception {
+        DeckDto deckDto = deckService.deleteDeck(id);
+        return new ResponseObject(deckDto);
+    }
+
+    @PutMapping("/decks/{id}")
+    public ResponseObject updateDeck(@PathVariable String id,@RequestBody DeckRQBody deckRQBody) throws  Exception {
+        DeckDto deckDto = deckService.updateDeck(id, deckRQBody);
+        return new ResponseObject(deckDto);
     }
 
     @GetMapping("decks/{id}")
-    @ResponseStatus(HttpStatus.OK)
-    public ResponseObject getDeckWithId(@PathVariable String id) throws Exception {
-        return deckService.getDeckWithId(id);
+    public ResponseObject getDeckWithId(@PathVariable String id) throws Exception{
+        DeckDto deckDto = deckService.getDeckWithId(id);
+        return new ResponseObject(deckDto);
     }
 }

@@ -2,17 +2,11 @@ package hdnguyen.service;
 
 import hdnguyen.common.Helper;
 import hdnguyen.dao.DeckDao;
-import hdnguyen.requestbody.DeskRequestBody;
 import hdnguyen.dto.deck.DeckDto;
-import hdnguyen.dto.ResponseObject;
-import hdnguyen.dto.LabelDto;
+import hdnguyen.rqbody.DeckRQBody;
+import hdnguyen.dto.deck.LDeckDto;
 import hdnguyen.entity.Deck;
-import hdnguyen.entity.Label;
 import hdnguyen.entity.User;
-import hdnguyen.requestbody.DeckUpdateBody;
-import jakarta.persistence.EntityManager;
-import jakarta.persistence.PersistenceContext;
-import jakarta.persistence.TypedQuery;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -24,191 +18,58 @@ public class DeckService {
 
     private final DeckDao deckDao;
     private final Helper helper;
-    @PersistenceContext
-    private EntityManager entityManager;
 
-    public ResponseObject createDeck(DeskRequestBody deskDto) throws Exception {
-        List<Label> labels = new ArrayList<>();
-        deskDto.getIdLabels().forEach(idLabel -> {
-            Label label = Label.builder()
-                    .id(idLabel)
-                    .build();
-            labels.add(label);
-        });
-
+    public DeckDto createDeck(DeckRQBody deckRQBody) throws Exception {
         User user = helper.getUser();
-        Deck addDeck = Deck.builder()
+        Deck deck = Deck.builder()
                 .id(helper.generateUUID())
-                .name(deskDto.getName())
-                .isPublic(deskDto.getIsPublic())
-                .description(deskDto.getDescription())
+                .name(deckRQBody.getName())
+                .description(deckRQBody.getDescription())
                 .createAt((new Date()))
-                .newLimit(10)
-                .reviewLimit(30)
+                .cards(new ArrayList<>())
                 .user(user)
-                .labels(labels)
-
-
                 .build();
-        Set<String> userDeskName = new HashSet<>();
-        user.getDecks().forEach(userDesk -> {
-            userDeskName.add(userDesk.getName());
-        });
-        if (userDeskName.contains(addDeck.getName())) throw new Exception("Tên bộ thẻ đã tồn tại!");
-        try {
-            Deck deckAddSuccess = deckDao.save(addDeck);
-            deskDto.setId(deckAddSuccess.getId());
-        }
-        catch (Exception e) {
-            throw new Exception(e.getMessage());
-        }
-        return ResponseObject.builder()
-                .status("success")
-                .data(deskDto)
-                .message("Thêm bộ thẻ thành công")
-                .build();
-    }
-
-    public ResponseObject getDecks(String [] aliasLabels, String orderBy, String sortBy) {
-
-        String strQuery = null;
-        TypedQuery<Deck> queryDeck;
-        String email = helper.getUser().getEmail();
-        if (aliasLabels != null) {
-            strQuery = "SELECT d from Deck d JOIN d.labels l WHERE d.user.email=:email AND l.alias IN :aliasLabels ORDER BY d." + orderBy + " " + sortBy;
-            queryDeck = entityManager.createQuery(strQuery, Deck.class);
-            queryDeck.setParameter("aliasLabels", Arrays.asList(aliasLabels));
-            queryDeck.setParameter("email", email);
-        }
-        else { // không lọc theo labels
-            strQuery = "SELECT d from Deck d WHERE d.user.email=:email ORDER BY d." + orderBy + " " + sortBy;
-            queryDeck = entityManager.createQuery(strQuery, Deck.class);
-            queryDeck.setParameter("email", email);
-
-        }
-
-        List<Deck> decks = queryDeck.getResultList();
-        List<DeckDto> deskResponses = new ArrayList<>();
-        decks.forEach(desk -> {
-            List<LabelDto> labelDtos = new ArrayList<>();
-            desk.getLabels().forEach(label -> {
-                labelDtos.add(new LabelDto(label.getId(), label.getName()));
-            });
-            deskResponses.add(
-                    DeckDto.builder()
-                            .id(desk.getId())
-                            .name(desk.getName())
-                            .description(desk.getDescription())
-                            .isPublic(desk.getIsPublic())
-                            .createAt(desk.getCreateAt())
-                            .cardNumber(desk.getCards().size())
-                            .labels(labelDtos)
-                            .build()
-            );
-        });
-        return ResponseObject.builder()
-                .status("success")
-                .message("Truy vấn thành công")
-                .data(deskResponses)
-                .build();
-    }
-
-    public ResponseObject deleteDeck(String id) throws Exception {
-        Deck deck = this.getDeckWithOfUser(id);
-        try {
-            deckDao.delete(deck); // xóa desk.
-        }
-        catch (Exception e) {
-            throw new Exception(e.getMessage());
-        }
-        return ResponseObject.builder()
-                .message("delete thành công")
-                .status("success")
-                .data(null)
-                .build();
+        return new DeckDto(deckDao.save(deck));
     }
 
 
-    private Deck getDeckWithOfUser(String id) throws Exception{
-        Optional<Deck> optionalDesk = deckDao.findById(id);
-        if (optionalDesk.isEmpty()) throw new Exception("Không tìm thấy bộ thẻ!");
+    public List<LDeckDto> getDesks() {
         User user = helper.getUser();
-        Deck deck = optionalDesk.get();
-        if (!deck.getUser().getEmail().equals(user.getEmail())) throw new Exception("Unauthorized!");
+        List<Deck> decks = user.getDecks();
+        List<LDeckDto> deckDtos = new ArrayList<>();
+        decks.forEach(deck -> {
+            deckDtos.add(new LDeckDto(deck));
+        });
+        return deckDtos;
+    }
+
+
+    public DeckDto deleteDeck(String id) throws Exception {
+        Deck deck = this.getDeck(id);
+        deckDao.delete(deck);
+        return new DeckDto(deck);
+    }
+
+    private Deck getDeck(String id) throws Exception {
+        Optional<Deck> oDeck = deckDao.findById(id);
+        if (oDeck.isEmpty()) throw new Exception("Not found!");
+        Deck deck = oDeck.get();
+        String uid = deck.getUser().getUid();
+        if (!uid.equals(helper.getUid())) {
+            throw new Exception("Unauthorized!");
+        }
         return deck;
     }
 
-    // update
-    public ResponseObject updateDeck(String id, DeckUpdateBody deckUpdateBody) throws Exception {
-        Deck deck = this.getDeckWithOfUser(id);
-        deck.setName(deckUpdateBody.getName());
-        deck.setDescription(deckUpdateBody.getDescription());
-        deck.setIsPublic(deckUpdateBody.getIsPublic());
-        List<Label> labels = new ArrayList<>();
-        deckUpdateBody.getIdLabels().forEach(idLabel -> {
-            labels.add(Label.builder().id(idLabel).build());
-        });
-        deck.setLabels(labels);
-        try {
-            Deck deckUpdate =  deckDao.save(deck);
-
-            List<Label> labelsUpdate= deckUpdate.getLabels();
-            List<LabelDto> labelsDto = new ArrayList<>();
-            labelsUpdate.forEach(labelUpdate -> {
-                labelsDto.add(LabelDto.builder().id(labelUpdate.getId()).name(labelUpdate.getName()).build());
-            });
-
-            DeckDto deskDto = DeckDto.builder()
-                    .id(deckUpdate.getId())
-                    .name(deckUpdate.getName())
-                    .isPublic(deckUpdate.getIsPublic())
-                    .description(deckUpdate.getDescription())
-                    .createAt(deckUpdate.getCreateAt())
-                    .labels(labelsDto)
-                    .build();
-
-            return ResponseObject.builder()
-                    .status("success")
-                    .message("update thành công")
-                    .data(deskDto)
-                    .build();
-        }
-        catch (Exception e) {
-            throw new Exception(e.getMessage());
-        }
+    public DeckDto updateDeck(String id, DeckRQBody deckRQBody) throws Exception {
+        Deck deck = this.getDeck(id);
+        deck.setName(deckRQBody.getName());
+        deck.setDescription(deckRQBody.getDescription());
+        return new DeckDto(deckDao.save(deck));
     }
 
-    public ResponseObject getDeckWithId(String id) throws Exception {
-
-        Deck deck = this.getDeckWithOfUser(id);
-        List<Label> labels = deck.getLabels();
-        List<LabelDto> labelDtos = new ArrayList<>();
-        labels.forEach(label -> {
-            labelDtos.add(LabelDto.builder()
-                    .name(label.getName())
-                    .id(label.getId())
-                    .build());
-         });
-
-        DeckDto deskResponse = DeckDto.builder()
-                .id(deck.getId())
-                .name(deck.getName())
-                .description(deck.getDescription())
-                .cardNumber(deck.getCards().size())
-                .isPublic(deck.getIsPublic())
-                .labels(labelDtos)
-                .createAt(deck.getCreateAt())
-                .build();
-
-        return ResponseObject.builder()
-                    .status("success")
-                    .message("Truy vấn thành công")
-                    .data(deskResponse)
-                    .build();
+    public DeckDto getDeckWithId(String id) throws Exception {
+        Deck deck = this.getDeck(id);
+        return new DeckDto(deck);
     }
-
-    // tìm kiếm, lọc desk. card
-    // cho lọc thẻ + sắp xếp
-
-
 }

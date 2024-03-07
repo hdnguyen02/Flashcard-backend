@@ -22,9 +22,9 @@ public class Helper {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         return (User)authentication.getPrincipal();
     }
-    public String getEMail() {
-        User user = this.getUser();
-        return user.getEmail();
+    public String getUid() {
+        return this.getUser().getUid();
+
     }
     public String generateUUID() {
         UUID uuid = UUID.randomUUID();

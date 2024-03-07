@@ -13,7 +13,7 @@ import java.util.List;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class ECard {
+public class Card {
     @Id
     @Column(length = 36)
     private String id;
@@ -24,10 +24,10 @@ public class ECard {
     @Column(nullable = false)
     private String definition;
 
-    @Column(length = 100)
+    @Column(length = 300)
     private String image;
 
-    @Column(length = 100)
+    @Column(length = 300)
     private String audio;
 
     @Column(name = "extract_info")
@@ -36,20 +36,14 @@ public class ECard {
     @Column(name = "created_at")
     private Date createAt;
 
-    private Integer repetition;
+    @Column(name = "is-favourite")
+    private Boolean isFavourite;
 
-
-    private Integer backticks;
-
-    @Column(name = "due_date")
-    private Date dueDate;
-
-    private Float ef;
-
-    private String type;
+    @Column(name = "is-remembered")
+    private Boolean isRemembered;
 
     @ManyToOne(fetch = FetchType.EAGER)
-    @JoinColumn(name = "id_deck")
+    @JoinColumn(name = "id_deck", nullable = false)
     private Deck deck;
 
     @ManyToMany(fetch = FetchType.EAGER)
