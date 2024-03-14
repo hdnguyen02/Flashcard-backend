@@ -11,9 +11,13 @@ import java.util.Map;
 @RestController
 @CrossOrigin("*")
 @RequiredArgsConstructor
-@RequestMapping("api/v1")
+@ResponseStatus(HttpStatus.OK)
+@RequestMapping("${system.version}")
 public class TagController {
     private final TagService tagService;
+
+    // người dùng thêm tag.
+
 
 //    @PostMapping("/tags")
 //    @ResponseStatus(HttpStatus.CREATED)

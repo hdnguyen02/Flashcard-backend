@@ -63,8 +63,12 @@ public class DeckService {
 
     public DeckDto updateDeck(String id, DeckRQBody deckRQBody) throws Exception {
         Deck deck = this.getDeck(id);
-        deck.setName(deckRQBody.getName());
-        deck.setDescription(deckRQBody.getDescription());
+        if (deckRQBody.getName() != null) {
+            deck.setName(deckRQBody.getName());
+        }
+        if (deckRQBody.getDescription() != null) {
+            deck.setDescription(deckRQBody.getDescription());
+        }
         return new DeckDto(deckDao.save(deck));
     }
 

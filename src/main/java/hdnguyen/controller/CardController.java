@@ -14,7 +14,7 @@ import java.util.List;
 @CrossOrigin("*")
 @RequiredArgsConstructor
 @ResponseStatus(HttpStatus.OK)
-@RequestMapping("api/v1")
+@RequestMapping("${system.version}")
 public class CardController {
     private final CardService cardService;
 
@@ -29,25 +29,33 @@ public class CardController {
             @RequestParam (required = false) MultipartFile audio,
             @RequestParam (required = false) List<String> idTags) throws  Exception {
 
-        CardDto cardDeckDto = cardService.createCard(idDeck, term, definition, extractInfo, image, audio, idTags);
-        return new ResponseObject(cardDeckDto);
+        CardDto cardDto = cardService.createCard(idDeck, term, definition, extractInfo, image, audio, idTags);
+        return new ResponseObject(cardDto);
     }
 
-//    @GetMapping("cards") // lọc cards
-//
-//    public ResponseObject getCards(@RequestParam(required = false) String filter, @RequestParam(required = false) String value) throws Exception {
-//        return cardService.getCards(filter, value);
-//    }
-//
-//    @PutMapping("cards")
-//    @ResponseStatus(HttpStatus.OK)
-//    public ResponseObject updateCard( @RequestBody CardDeckDto cardDto) throws Exception {
-//        return cardService.updateCard(cardDto);
-//    }
-//
-//    @DeleteMapping("cards/{id}")
-//    @ResponseStatus(HttpStatus.OK)
-//    public ResponseObject deleteCards(@PathVariable String id) {
-//        return cardService.deleteCard(id);
-//    }
+    @PutMapping("cards/{id}")
+    public ResponseObject updateCard(@PathVariable String id,  @RequestParam (required = false) String idDeck,
+                                     @RequestParam (required = false) String term,
+                                     @RequestParam (required = false) String definition,
+                                     @RequestParam (required = false) String extractInfo,
+                                     @RequestParam (required = false) MultipartFile image,
+                                     @RequestParam (required = false) MultipartFile audio,
+                                     @RequestParam (required = false) Boolean isFavourite,
+                                     @RequestParam (required = false) Boolean isRemembered,
+                                     @RequestParam (required = false) List<String> idTags) throws Exception {
+        CardDto cardDto = cardService.updateCard(id ,idDeck, term, definition,
+                extractInfo,image,audio,isFavourite, isRemembered,idTags);
+        return new ResponseObject(cardDto);
+    }
+
+    @DeleteMapping("cards/{id}")
+    public ResponseObject deleteCard(@PathVariable String id) throws Exception {
+        CardDto cardDto = cardService.deleteCard(id);
+        return new ResponseObject(cardDto);
+    }
+    @GetMapping("cards/{id}")
+    public ResponseObject getCardWithId(@PathVariable String id) throws Exception {
+        CardDto cardDto = cardService.getCardWithId(id);
+        return new ResponseObject(cardDto);
+    }
 }

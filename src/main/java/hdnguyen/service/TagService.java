@@ -21,54 +21,24 @@ public class TagService {
     private final TagDao tagDao;
     private final Helper helper;
 
-//    public ResponseObject getTags() {
-//        List<TagDto> tagDtos = new ArrayList<>();
-//        List<Tag> tags = helper.getUser().getTags();
-//        tags.forEach(tag -> {
-//            tagDtos.add(
-//                    TagDto.builder()
-//                            .id(tag.getId())
-//                            .name(tag.getName())
-//                            .build()
-//            );
-//        });
-//
-//
-//        return ResponseObject.builder()
-//                .status("success")
-//                .message("Truy vấn thành công")
-//                .data(tagDtos)
-//                .build();
-//    }
-//
-//    public ResponseObject createTag(String name) throws Exception {
-//        User user = helper.getUser();
-//        List<Tag> tags = user.getTags();
-//
-//        Set<String> UserTagName = new HashSet<>();
-//        tags.forEach(tag -> {
-//            UserTagName.add(tag.getName());
-//        });
-//        if (UserTagName.contains(name)) throw new Exception("Đã tồn tại tag!");
-//
-//        Tag tag;
-//        try {
-//            tag = tagDao.save( Tag.builder().name(name).user(user).build());
-//        }
-//        catch (Exception e) {
-//            throw new Exception(e.getMessage());
-//        }
-//
-//        TagDto tagDto = TagDto.builder()
-//                .id(tag.getId())
-//                .name(tag.getName())
-//                .build();
-//
-//        return ResponseObject.builder()
-//                .status("success")
-//                .message("Thêm tag thành công")
-//                .data(tagDto)
-//                .build();
-//    }
+    public List<TagDto> getTags() {
+        List<TagDto> tagDtos = new ArrayList<>();
+        List<Tag> tags = helper.getUser().getTags();
+        tags.forEach(tag -> {
+            tagDtos.add(new TagDto(tag));
+        });
+        return tagDtos;
+    }
 
+    public TagDto createTag(String name) throws Exception {
+        User user = helper.getUser();
+        List<Tag> tags = user.getTags();
+        Set<String> UserTagName = new HashSet<>();
+        tags.forEach(tag -> {
+            UserTagName.add(tag.getName());
+        });
+        if (UserTagName.contains(name)) throw new Exception("Đã tồn tại tag!");
+        Tag tag = Tag.builder().name(name).user(user).build();
+        return new TagDto(tagDao.save(tag));
+    }
 }

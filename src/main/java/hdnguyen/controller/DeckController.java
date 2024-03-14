@@ -15,8 +15,7 @@ import java.util.List;
 @CrossOrigin("*")
 @RequiredArgsConstructor
 @ResponseStatus(HttpStatus.OK)
-@RequestMapping("api/v1")
-
+@RequestMapping("${system.version}")
 public class DeckController {
 
     private final DeckService deckService;
